@@ -1,0 +1,7 @@
+Guter Programmierer, Business, Probleme, Bezahlung
+18.2.21
+Dave Cheney
+
+Ein exzellenter Softwareprogrammierer löst Business Probleme / entwickelt *Lösungen für Business Probleme*. Er wird nicht dafür bezahlt um zu programmieren, auch nicht um den Code von jemandem anderen zu warten.
+
+> You’re not paid to program, you’re not even paid to maintain someone else’s program, you’re paid to deliver solutions to the business. - Dave Cheney

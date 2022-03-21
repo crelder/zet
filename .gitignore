@@ -1,0 +1,12 @@
+.DS_Store
+main
+/.vscode/
+.idea/vcs.xml
+.idea/workspace.xml
+c.out
+/.idea/modules.xml
+/.idea/zet.iml
+/.idea/.gitignore
+/internal/core/as/testdata/import/zettelkasten/IMPORT/
+/internal/core/as/testdata/view/zettelkasten/VIEWS/
+/internal/adapter/driven/testdata/
