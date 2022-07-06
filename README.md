@@ -1,162 +1,169 @@
 # zet
 
-Zet is a command line tool for a personal knowledge management system using the zettelkasten method.
+The following project proposes a personal knowledge management system that is robust, simple, and built to last a
+lifetime.
 
-It was built to be simple, robust, and designed to last a lifetime.
-## zet solves three problems
+## Motivation
 
-1. You want to find a thought that you know to exist in your knowledge management system
-2. You want to find relevant thoughts around a particular topic that you don't know to exist in your knowledge management
-   system
-3. You want a tool that supports in developing lines of thoughts and train your ability to think in a structured manner
+We live in a knowledge-based society (German: "Wissensgesellschaft"). There are projects like Wikipedia, where
+*collective* knowledge about the world is processed and stored. However, what about *personal* knowledge? Is there a way
+to equally enrich how we process and store personal knowledge like the project Wikipedia does for collective knowledge?
 
-## How does `zet` work?
+This project might be the answer.
 
-A folder (e.g. `zettelkasten`) holds everything you need for your personal knowledge management. It has three elements:
+Read the following instructions to understand how and why this personal knowledge management system works. If you are
+convinced, you can install this CLI tool via `go install github.com/crelder/zet/cmd/cli@latest` (prerequisite: you
+have [Go](https://go.dev/doc/install) installed)
 
-* a folder `zettel/` with zettel (= images or text files with the content of your thoughts)
-* a `literature.bib` with information on literature sources
-* an `index.txt` file (contains entry points into lines of thought about a particular topic)
+## Problem statement
 
-### folder `zettel/`
+This project tries to solve the question, "What to do with a good thought?". So that I, as the user, have a long-term
+memory and can
 
-Every zettel filename contains all metainformation.  
-E.g.: `170211a - Algorithm, Efficiency - GopherCon, sedgewick2011 - 180204d.txt`
+1. find a thought that I know to exist in my personal knowledge management system and
+2. discover relevant thoughts which I do not know to exist in my personal knowledge management system and
+3. put a thought in the context of previous thoughts, therefore supporting structured thinking
 
-The filename consists of four parts, which are always in the same order:
+## Proposed solution
 
-1. The first part, the id `170211a` (= date).
-2. The second part, `Algorithm, Efficiency`, contains keywords.
-3. The third part, `GopherCon, sedgewick2011`, contains context `GopherCon` and literature sources `sedgewick2011`.
-4. The fourth part, `180204d`, contains one or more "folgezettel". These are links to other zettel. These links form a
-   tree (not a network).
+A folder in your computer ("/zettel") holds all your thoughts in the form of a) a textfile or b) a scan of a DIN A6 "zettel" (in German "zettel" means "slip of paper"; there the name "zettelkasten" comes from - "kasten" in German means"
+box").
 
-Only the first part is mandatory. The following three parts are optional.
+Every filename contains the metadata of your thought and has the structure   
+`ID - Keywords - References and/or Contexts - Link`.  
+E.g. `170212d - Design, Philosophy - werner2011 243, Movie Matrix - 161103f.txt`.  
 
-### index.txt
+Everything but the `ID` is optional in the filename.
 
-`index.txt` contains thematic entry points into your zettelkasten, for example:
+### Finding thoughts
 
-```text
-Complexity: 190119e
-Interfaces: 220115p
-```
+Via the search by filename in your file browser and the zettel filename, you can rediscover thoughts. Examples are:
 
-### literature.bib
+**What was the thought again I had during my vacation in June 2017?**
 
-`literature.bib` contains the list of literature references. This file is not only beneficial for scientific writing.
+Since the ID contains the date, your thoughts will appear chronologically in the `zettel` folder, and you can search
+for "1706" and it will give you your thoughts during June 2017.
 
-### Import and Views functionality
+![My thoughts in June 2017](https://github.com/crelder/zettelkasten/blob/master/pictures/search-date-june.PNG)
 
-You then navigate into your zettelkasten folder in the shell and can run the following zet commands:
+**What are my thoughts regarding the topic 'Entropy'?**
 
-```shell
-Usage: zet <command> [<args>]
+All keywords are in the filename. So searching for this keyword 'Entropy' would give you this list:
 
-These are common zet commands:
-  import <path> Copy text files in <path> to folder 'IMPORT/'
-  validate      Check your zettelkasten's consistency
-  views         Generate folder 'VIEWS/', which contains access points into your zettelkasten
+![My thoughts in July 2016](https://github.com/crelder/zettelkasten/blob/master/pictures/search-topic-entropie.PNG)
 
-All Zet commands operate read-only on the three elements of the zettelkasten:
-  * folder 'zettel'  (contains all zettel as a .txt, .png or .pdf file)
-  * index.txt        (contains manually created starting points into your zettelkasten)
-  * literature.bib   (contains information on sources - needed especially for scientific writing)
-```
+**What were my thoughts from reading the book from Welter 2011?**
 
-`zet validate`: tells you if you have inconsistencies e.g., dead links, duplicated ids
+The filename can contain bibkeys for referencing literature sources and a page number. These literature sources are
+stored in the `references.bib` file of your zettelkasten. The bibkey's format is AUTHORYEAR (in lower case letters) and
+optionally a lower case letter. E.g. `welter2011` or `shannon1948c` in case you have several
+references of that author in one year.
 
-`zet import <path-to-folder>`: imports all .txt files from a folder into the zettelkasten and parses the header in the
-text file into a correct filename with meta information.
+![Summary of the book the author Welter wrote in 2011](https://github.com/crelder/zettelkasten/blob/master/pictures/search-source-welter.PNG)
 
-`zet views`: generates several access points into your zettelkasten.
+**What was the thing about music and scales in the movie Dunkirk?**
 
-To see how the `zet import` command works navigate to `internal/core/as/testdata/import/zettelkasten`. In order to
-import the textfiles in `internal/core/as/testdata/import/new_zettel_files` run all tests (run `go test ./...`). You
-will then see a folder "IMPORTS", with the newly imported zettel with a correct file name.
+The filename optionally contains context, e.g. the name of a person you had a conversation with when you had this
+thought or a place where you had this thought or some other form of context like thinking about a movie.
 
-The header of the new zettel is used to create a filename. When a zettel is in the form of a text, it always contains
-two to three lines with metadata. These first two to three lines form the "header" of a textfile.
+![My thoughts about the Movie Dunkirk](https://github.com/crelder/zettelkasten/blob/master/pictures/search-source-dunkirk.PNG)
 
-To see how the `zet views` command works within your zet codebase navigate
-to `internal/core/as/testdata/views/zettelkasten` and run all tests by executing `go test ./...`. You will then see a
-folder `VIEWS/` with all the access points into the small example zettelkasten. You have here the following access points
-into your zettelkasten via the following folders:
+These examples show how you solve problems 1 and 2 in the problem statement above.
 
-* `keywords/`: for every keyword you see all relevant zettel
-* `context/`: for every context you see all relevant zettel
-* `citations/`: for every citation (= literature source), you see all relevant zettel
-* `explore/`: for every (zettel) id you see all other related zettel
-* `index/`: for every index entry you see all relevant zettel
+### Support for structured thinking
 
-## Installation
+Link each zettel to a previous zettel by providing an ID at the end of a filename. Since the zettel are arranged in your
+folder `zettel` in an associative way (ordered by date, since the ID uses the creation date), you can put them in a
+logical order by using the entries in the `index.txt` and the command `zet views`. This will create a
+folder `VIEWS/index/` which holds for each thematic topic a list of symlinks to your zettel.
 
-Run `go install github.com/crelder/zet/cmd/cli@latest` (As soon as this project is a public github project...)
+You can now use your file browser to display the logical chain of thoughts.
 
-## Problems that the tool needs to tackle
+![Chain of thoughts regarding programming](https://github.com/crelder/zettelkasten/blob/b18913a74bccb2dd8abd035e94b9f69371c21d38/pictures/search-structured-thinking.png)
 
-These are limitations some existing personal knowledge management solutions have. This tool needs to solve these.
+Here you can see that the zettel with ID "220116s" has the ID "220115p" at the end of the filename. If there is more
+than one zettel pointing to a previous zettel, it will put the earliest zettel in the main branch and fork all the
+others in the form of a folder, e.g. 01_220202g and 02_220519t. In these folders, the chain of thoughts then continues.
 
-1. Lock-in of information
-2. Long usage until it gets useful
-3. f(shit)=shit, therefore protection against overflowing with useless or bad input
-4. Your knowledge shouldn't be represented as a network because humans have difficulty reading networks. They are used
-   to reading linear structures (e.g., books have a linear structure, Wikipedia doesn't)
+An entry in `index.txt` holds a topic and a list of starting points into line of thought in your zettelkasten. Example entries are `Programming: 220115p` or `Entropy: 170213d, 181124s`.
 
-## Code Structure
+Run `zet init example` to see a simple example zettelkasten - it also serves as a tutorial.
 
-The project is structured following hexagonal architecture.
+## Design Philosophy
 
-The application's entry point is in `cmd/cli/main.go`, where the app is wired together. The cli adapter will return
-the app. It uses the driving ports of your core, which are located in `internal/core/port`, alongside your business
-logic and application services.
+In this section, I want to explain why the above-described solution looks like this and why it is designed in a way that
+it fulfills the following requirements.
 
-Package `bl` contains all the business logic and models of this program. The here exposed functions help to fulfill the
-three functions in the application service layer (package `as`):
+It is quite some **work** to insert own thoughts into a personal knowledge management system. If I am not convinced that
+my thoughts are well protected or are still accessible after a certain time, I will not insert my thoughts in the first
+place into the system. This is because I am unwilling to invest time to write thoughts into a system where I cannot
+still benefit from my work after a certain time.
 
-* Creating all kinds of views on the zettelkasten
-* Validating the zettelkasten (= checking for inconsistencies)
-* Supporting the import of zettel in text format by automatically creating the filename based on the zettel header
+From this central observation the following **requirements** for a potential solution derive.
 
-The application layer uses the driven ports to access infrastructure functionality, the repo. This tool doesn't
-deliberately use a database. You should be able to access your notes throughout your
-life easily. Using just a folder is simpler and more robust (therefore, no information lock-in).
+* **Robustness**: The system should not easily break down. Moreover, if it does, you as the user should be able to
+  completely recover its state. The system must also work without the need for maintenance (updates, etc.), therefore
+  being easy to maintain.
 
-The two assumptions are:
+* **Build to last a lifetime**: The system must still work in e.g. 30 years or during your whole lifetime. This is why
+  you should not use special software for your personal knowledge management, because it always bears the threat of a "
+  look in" of your thoughts into a specific system. Who will guarantee you that you can still use the software in 15
+  years? Even if you could export your thoughts, you might not be able to work with your thoughts again. The reason
+  could be, that the data is unstructured or messed up. When going bankrupt or discontinuing a product, software
+  companies usually are not very dedicated to transfer users' data to another software solution because, in that state,
+  they have other sorrows.
 
-a) that you will always have a filesystem with a folder, where you can store text and image files.
+* **Simplicity**: To be robust and last a lifetime, the personal knowledge management system must be simple. In general,
+  I see that *knowledge management tools are overrated, and the usage of these tools is underrated*. It is as if you
+  would give a layman a Steinway grand piano and expected him to play like a great pianist because he has a great tool.
+  This is a fallacy.  
+  Most work when doing personal knowledge management involves reading, selecting, discussing, thinking, and writing down
+  the thoughts.  
+  You do not necessarily need `zet` to access your thoughts or to enter your thoughts. `zet` just gives a bit more
+  convenience.  
+  The assumptions that this system works for you over a lifetime are:
 
-b) that you will always have a search functionality for searching through your filenames.
+    1. that you will always have a filesystem with a folder, where you can store text and image files.
+    2. that you will always have a search functionality for searching through your filenames, e.g. via the file
+       explorer (Windows) or Finder (Mac).
+    3. that you have a viewer and editor for textfiles and a viewer for images.
 
-## Combining with other tools
+* **Immediate use**: You should not have to enter content in the system for e.g. one year until a useful experience is
+  promised. The system should immediately generate a useful output and, therefore, an experience of genuine use (after
+  having added e.g. five thoughts or having used it for three days). This constant feedback on the use of the system
+  keeps you motivated to input data into the system continuously.
 
-This cli tool has its full potential when combined with other tools.
+* **Good input**: The outcome quality of a system depends on the input quality. A system must be designed in a way so
+  that no "bad" input enters the system. No matter how good the system is, if you enter bad input, the system will have
+  bad output - independent of the system's quality: f(shit) = shit. What is meant by "bad input" are thoughts that are
+  not your own thoughts and are merely a "copy-paste" of what someone else said or wrote. "Good input" are thoughts
+  (even from someone else) which I can write down in consistent prose text using my **own words** and optionally enrich
+  it with sketches, arrows, etc. See also
+  this [explanation](https://strengejacke.wordpress.com/2007/08/04/lesen-lernen/)
+  on how to read.
 
-* Syncing across all your devices: e.g., icloud, nextcloud
-* Version control: e.g. git
-* Scanning paper zettel: e.g., Adobe Scan App
-* Dictate thoughts: e.g., IA Writer with ios build-in speech recognition
-
-These tools will most likely change over your lifetime. The invariant of this system are the three zettelkasten
-elements (text and images with your thought, text files with an index, and literature).
+A consciously chosen limit in this approach to personal knowledge management is that you decide to use only one language
+for the filenames.
 
 ## Further reading
 
-I recommend this presentation on the questions how Niklas Luhmann worked with his
-zettelkasten ([link](https://strengejacke.files.wordpress.com/2015/10/introduction-into-luhmanns-zettelkasten-thinking.pdf))
+The full potential of this personal management system is unlocked when combining this tool with other tools for e.g.
+synchronizing via the cloud, version control. See the [FAQs](docs/FAQ.md) about these points and further reading.
 
-See current bugs, issues and planned feature [here](./TODO.md).
+There are more `zet` features. `zet help` will show you a list of all commands. `zet init example` will download a small
+tutorial, where especially the command `zet import` is explained.
 
-I build an earlier version; see [here](https://github.com/crelder/zettelkasten). I kept the functionality that I found
-useful (the structure of the filenames, an importer functionality), but left the stuff that I didn't find helpful behind (a
-gephi graph, a UI for seeing the folgezettel structure).
+## Feedback and Contributing
 
-## Contributing
+I am happy to receive comments, thoughts and ideas in
+the [discussion section](https://github.com/crelder/zet/discussions/1).
 
 I develop this project in my spare time. Therefore, I am happy about any contributions to this project, be it new
-features, bug fixes, fixing typos, improving documentation, suggestions on how to design the code better, you name it!
+features, bug fixes, typo fixes, documentation improvements, suggestions on how to design the code better, etc.
 
-Just open a new issue ticket or a pull request. I promise to respond, but it might take a while: either because I am
-busy with other stuff or because I am thinking about what you wrote.
+Just open a new issue ticket or a pull request. I promise to respond, but it might take a while because I am busy with
+other stuff.
 
 ## Acknowledgments
+
+Gabriel, Silke, Sascha, Mathias, Siegfried

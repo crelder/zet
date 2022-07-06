@@ -1,12 +1,9 @@
 .DS_Store
+.idea
+/pkg/imports/testdata/import/zettelkasten/zettel/210218g - Guter Programmierer, Business, Probleme, Bezahlung - Dave Cheney.txt
+/pkg/imports/testdata/import/zettelkasten/zettel/211005a - Probleme - Dave Cheney.txt
+/pkg/imports/testdata/import/zettelkasten/zettel/211005g - Prozess, Glück, Enttäuschung, Hoffnung - Paul Watzlawick, Anleitung zum Unglücklich sein.txt
+/pkg/initialize/tmp_test_init_example/
+/pkg/initialize/tmp_test/
+/pkg/view/testdata/view/zettelkasten/VIEWS/
 main
-/.vscode/
-.idea/vcs.xml
-.idea/workspace.xml
-c.out
-/.idea/modules.xml
-/.idea/zet.iml
-/.idea/.gitignore
-/internal/core/as/testdata/import/zettelkasten/IMPORT/
-/internal/core/as/testdata/view/zettelkasten/VIEWS/
-/internal/adapter/driven/testdata/

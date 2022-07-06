@@ -1,0 +1,9 @@
+version: '3'
+
+tasks:
+    test:
+        desc: Runs all your tests (no caching of test results).
+        cmds:
+            - go clean -testcache
+            - go test ./...
+        silent: true

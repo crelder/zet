@@ -1,0 +1,3 @@
+Komplexität: 190119e
+Programmieren: 220115p
+Circular Dependency: 220122a

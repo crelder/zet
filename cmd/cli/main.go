@@ -2,16 +2,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/crelder/zet/internal/adapter/driven"
-	"github.com/crelder/zet/internal/adapter/driving"
-	"github.com/crelder/zet/internal/core/as"
+	"github.com/crelder/zet/pkg/imports"
+	"github.com/crelder/zet/pkg/initialize"
+	"github.com/crelder/zet/pkg/parse"
+	"github.com/crelder/zet/pkg/transport/cli"
+	"github.com/crelder/zet/pkg/transport/repo"
+	"github.com/crelder/zet/pkg/validate"
+	"github.com/crelder/zet/pkg/view"
 	"log"
 	"os"
 )
 
 func main() {
 	if r := run(); r != nil {
-		log.Fatal(r)
+		log.Print(r)
 	}
 }
 
@@ -28,18 +32,20 @@ func run() error {
 }
 
 func createApp() (cli.App, error) {
-	// Since the CLI tool can only be called within a zettelkasten directory,
-	// the current working directory is also the path to the zettelkasten directory.
+	// The cli application can only run within a zettelkasten directory.
+	// Therefore, the current working directory is also the path to the zettelkasten directory.
 	wd, err := os.Getwd()
 	if err != nil {
-		return cli.App{}, fmt.Errorf("could not read the current working directory")
+		return cli.App{}, fmt.Errorf("could not read the current working directory: %v", err)
 	}
 
 	// Wire app together
-	r := repo.NewRepo(wd)
-	viewer := as.NewViewer(r, r)
-	importer := as.NewImporter(r, r)
-	validator := as.NewValidator(r)
+	parser := parse.New()
+	r := repo.New(wd, parser)
+	viewer := view.New(r, r)
+	importer := imports.New(parser, r, r)
+	validator := validate.New(r)
+	initiator := initialize.New(wd)
 
-	return cli.NewApp(importer, viewer, validator), nil
+	return cli.NewApp(importer, viewer, validator, initiator), nil
 }
