@@ -31,12 +31,13 @@ func TestValidate(t *testing.T) {
 	}
 
 	want := map[string]bool{
-		"zettel: not unique id \"180112a\"":                            true,
-		"zettel: target link not existing: 190311d":                    true,
-		"index: target link not existing: 180317q":                     true,
-		"index: could not parse line \"Water::170312w\"":               true,
-		"zettel: predecessor id 190311d doesn't exist, zettel 170327f": true,
-		"reference: missing bibkey \"knut2012\"":                       true,
+		"zettel: not unique id \"180112a\"":                                               true,
+		"zettel: target link not existing: 190311d":                                       true,
+		"index: target link not existing: 180317q":                                        true,
+		"index: could not parse line \"Water::170312w\"":                                  true,
+		"zettel: predecessor id 190311d doesn't exist, zettel 170327f":                    true,
+		"reference: missing bibkey \"knut2012\"":                                          true,
+		"repo: parse Filename: could not parse id from filename \"noId - Something.txt\"": true,
 	}
 
 	for str := range want {
