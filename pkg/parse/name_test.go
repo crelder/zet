@@ -22,6 +22,9 @@ func TestParseFilename(t *testing.T) {
 		// The id is not at the start.
 		{"Evolution, Lego bauen - 170402a", zet.Zettel{}, "parse Filename: could not parse id from filename \"Evolution, Lego bauen - 170402a\""},
 
+		// There is no id at all in the filename.
+		{"Evolution, Lego bauen", zet.Zettel{}, "parse Filename: could not parse id from filename \"Evolution, Lego bauen\""},
+
 		// The minimal structure of a zettel, hence a filename with only an id.
 		{"200110d.txt", zet.Zettel{Id: "200110d", Name: "200110d.txt"}, ""},
 
@@ -50,6 +53,20 @@ func TestParseFilename(t *testing.T) {
 			},
 			"",
 		},
+
+		// A filename with a reference, but without a keyword
+		//{
+		//	"170712a - nick2016 - 190314a, 200112ver.png",
+		//	zet.Zettel{
+		//		Id:          "170712a",
+		//		Keywords:    []string{},
+		//		Predecessor: []string{"190314a", "200112ver"},
+		//		References:  []zet.Reference{{Bibkey: "nick2016", Location: ""}},
+		//		Context:     []string{},
+		//		Name:        "170712a - nick2016 - 190314a, 200112ver.png",
+		//	},
+		//	"",
+		//},
 		//{
 		// "150302s - 140304t.txt",
 		// zet.Zettel{
