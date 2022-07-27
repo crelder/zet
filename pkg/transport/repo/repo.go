@@ -139,7 +139,8 @@ func (r Repo) getFiles() ([]zettelFile, []error, error) {
 		var parseErr error
 		z, parseErr = r.parser.Filename(file.Name())
 		if parseErr != nil {
-			incons = append(incons, fmt.Errorf("repo: %v", parseErr))
+			incons = append(incons, fmt.Errorf("zettel: %v", parseErr))
+			continue
 		}
 		zettelFiles = append(zettelFiles, zettelFile{
 			zettel:   z,
@@ -161,9 +162,13 @@ func (r Repo) getFiles() ([]zettelFile, []error, error) {
 
 	var err4 error
 	for _, file := range dirEntries2 {
+		if notValid(file) {
+			continue
+		}
 		z, err4 = r.parser.Filename(file.Name())
 		if err4 != nil {
-			incons = append(incons, fmt.Errorf("inconsistency: %v", err4))
+			incons = append(incons, fmt.Errorf("works: %v", err4))
+			continue
 		}
 		zettelFiles = append(zettelFiles, zettelFile{
 			zettel:   z,
