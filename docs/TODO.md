@@ -7,6 +7,7 @@
 4. Add test case that in `VIEWS/unlinked` are only these files, that have no predecessor link
 5. Add test case that checks that circular dependencies are detected in `VIEWS/index`.
 6. Add missing testcase for `VIEWS/unlinked`: shouldn't list `220122a - 191212b.txt`
+7. Delete AddFolgezettel, because it is implicitly also tested via validate and views tests? Does order matter? It should be in the way it is in the filename.
 
 ## New features for `zet validate`
 

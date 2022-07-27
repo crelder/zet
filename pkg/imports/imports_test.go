@@ -13,7 +13,7 @@ func TestCreateImports(t *testing.T) {
 	if errors != nil {
 		t.Errorf("could not get the current working dir")
 	}
-	var pathTestRepo = wd + "/testdata/import/zettelkasten/"
+	var pathTestRepo = wd + "/testdata/zettelkasten/"
 	parser := parse.New()
 	r := repo.New(pathTestRepo, parser)
 	importer := New(parser, r, r)
@@ -27,7 +27,7 @@ func TestCreateImports(t *testing.T) {
 	}
 
 	// Act
-	const impSourcePath = "./testdata/import/new_zettel_files"
+	const impSourcePath = "./testdata/new_zettel_files"
 
 	// Assert
 	n, err := importer.CreateImports(impSourcePath)

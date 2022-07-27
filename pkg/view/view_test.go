@@ -13,7 +13,7 @@ func TestCreateIndexViews(t *testing.T) {
 	if err != nil {
 		t.Errorf("could not get the current working dir")
 	}
-	var pathTestRepo = wd + "/testdata/view/zettelkasten"
+	var pathTestRepo = wd + "/testdata/zettelkasten"
 	parser := parse.New()
 	r := repo.New(pathTestRepo, parser)
 	viewer := New(r, r)

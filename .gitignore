@@ -1,9 +1,9 @@
 .DS_Store
 .idea
-/pkg/imports/testdata/import/zettelkasten/zettel/210218g - Guter Programmierer, Business, Probleme, Bezahlung - Dave Cheney.txt
-/pkg/imports/testdata/import/zettelkasten/zettel/211005a - Probleme - Dave Cheney.txt
-/pkg/imports/testdata/import/zettelkasten/zettel/211005g - Prozess, Glück, Enttäuschung, Hoffnung - Paul Watzlawick, Anleitung zum Unglücklich sein.txt
+/pkg/imports/testdata/zettelkasten/zettel/210218g - Guter Programmierer, Business, Probleme, Bezahlung - Dave Cheney.txt
+/pkg/imports/testdata/zettelkasten/zettel/211005a - Probleme - Dave Cheney.txt
+/pkg/imports/testdata/zettelkasten/zettel/211005g - Prozess, Glück, Enttäuschung, Hoffnung - Paul Watzlawick, Anleitung zum Unglücklich sein.txt
 /pkg/initialize/tmp_test_init_example/
 /pkg/initialize/tmp_test/
-/pkg/view/testdata/view/zettelkasten/VIEWS/
+/pkg/view/testdata/zettelkasten/VIEWS/
 main
