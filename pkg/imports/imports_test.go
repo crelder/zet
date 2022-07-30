@@ -10,27 +10,40 @@ import (
 
 func TestCreateImports(t *testing.T) {
 	// Arrange
-	wd, errors := os.Getwd()
-	if errors != nil {
+	wd, err := os.Getwd()
+	if err != nil {
 		t.Errorf("could not get the current working dir")
 	}
 	var pathTestRepo = wd + "/testdata/zettelkasten/"
-	parser := parse.New()
-	r := repo.New(pathTestRepo, parser)
-	importer := New(parser, r, r)
+	p := parse.New()
+	r := repo.New(pathTestRepo, p)
+	importer := New(p, r)
 
-	testFiles := []string{
-		pathTestRepo + "zettel/211005g - Prozess, Glück, Enttäuschung, Hoffnung - Paul Watzlawick, Anleitung zum Unglücklich sein.txt",
-		pathTestRepo + "zettel/211005a - Probleme - Dave Cheney.txt"}
-	err := removeFiles(testFiles) // These will be created again during the test
-	if err != nil {
-		t.Errorf("error removing test files")
+	// Rebuild a clean state of the zettel folder
+	err2 := os.RemoveAll(pathTestRepo + "zettel/")
+	if err2 != nil {
+		t.Errorf("could not remove zettel folder for recreating it")
 	}
 
+	// Put one zettel in your zettelkasten.
+	zettel := `Post-capitalism
+11.8.21
+
+Some thought...`
+	err3 := os.Mkdir(pathTestRepo+"zettel", 0755)
+	if err3 != nil {
+		t.Errorf("could not create zettel folder: %v", err3)
+	}
+	err4 := os.WriteFile(pathTestRepo+"zettel/"+"211005p - Post-capitalism.txt", []byte(zettel), 0755)
+	if err4 != nil {
+		t.Errorf("could not write zettel file: %v", err4)
+	}
+
+	// Load new content that will get persisted in the zettel folder.
 	const impSourcePath = "./testdata/new_zettel_files"
-	contents, err := getContentsFromPath(impSourcePath)
-	if err != nil {
-		t.Errorf("error getting file content: %v", err)
+	contents, err5 := getContentsFromPath(impSourcePath)
+	if err5 != nil {
+		t.Errorf("error getting file content: %v", err5)
 	}
 
 	// Act
@@ -58,15 +71,6 @@ func TestCreateImports(t *testing.T) {
 			t.Errorf("File was not created: %v", tc)
 		}
 	}
-}
-func removeFiles(testFiles []string) error {
-	for _, tf := range testFiles {
-		err := os.RemoveAll(tf)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func getContentsFromPath(path string) ([]string, error) {

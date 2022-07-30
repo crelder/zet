@@ -8,14 +8,12 @@ import (
 // Importer satisfies the zet.Importer interface.
 type Importer struct {
 	parser zet.Parser
-	reader Reader
 	repo   zet.Repo
 }
 
-func New(p zet.Parser, r Reader, repo zet.Repo) Importer {
+func New(p zet.Parser, repo zet.Repo) Importer {
 	return Importer{
 		parser: p,
-		reader: r,
 		repo:   repo}
 }
 
