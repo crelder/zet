@@ -52,7 +52,7 @@ func (i Initiator) Init() error {
 func (i Initiator) InitExample() error {
 	var initPath = i.path + "/tmp_download"
 	if exists(initPath) {
-		return fmt.Errorf("target path already exists: %v", initPath)
+		return fmt.Errorf("initialize: folder zettelkasten already exists in current path: %v", initPath)
 	}
 
 	resp, err := http.Get("https://github.com/crelder/zet_example/archive/refs/heads/main.zip") // Downloads a zip file
@@ -79,12 +79,15 @@ func (i Initiator) InitExample() error {
 		return err4
 	}
 
-	err5 := filterExtract(initPath+"/example.zip", i.path)
+	err5 := extract(initPath+"/example.zip", i.path)
 	if err5 != nil {
 		return err5
 	}
 
-	os.Rename(i.path+"/zet_example-main", i.path+"/zettelkasten")
+	err8 := os.Rename(i.path+"/zet_example-main", i.path+"/zettelkasten")
+	if err8 != nil {
+		return err8
+	}
 
 	// We successfully extracted the zip file and therefore can delete it now, including the tmp folder.
 	err6 := os.Remove(initPath + "/example.zip")
@@ -99,8 +102,8 @@ func (i Initiator) InitExample() error {
 	return nil
 }
 
-// filterExtract takes as parameter a zip source filename and a destination path and extracts the ZIP archive.
-func filterExtract(zipFilename, destPath string) error {
+// extract takes as parameter a zip source filename and a destination path and extracts the ZIP archive.
+func extract(zipFilename, destPath string) error {
 	// Open the source filename for reading
 	zipReader, err := zip.OpenReader(zipFilename)
 	if err != nil {
@@ -137,7 +140,7 @@ func filterExtract(zipFilename, destPath string) error {
 		}
 
 		// Create all needed directories
-		if os.MkdirAll(filepath.Dir(finalPath), 0755) != nil {
+		if err := os.MkdirAll(filepath.Dir(finalPath), 0755); err != nil {
 			return err
 		}
 

@@ -17,13 +17,6 @@ func New(p zet.Parser, repo zet.Repo) Importer {
 		repo:   repo}
 }
 
-// Reader gets zettel as text.
-//
-// GetContents takes a path to a folder with textfiles and returns their contents.
-type Reader interface {
-	GetContents(path string) ([]string, error)
-}
-
 // Import creates for every slice entry, a zettel content,
 // a valid filename with all the zettel's metadata and a unique id.
 //
