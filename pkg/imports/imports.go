@@ -26,18 +26,13 @@ type Reader interface {
 	GetContents(path string) ([]string, error)
 }
 
-// CreateImports reads all the zettel contents from the parameter path.
-// For every zettel content, a valid filename is generated containing all the zettel's metadata and
-// a unique id.
+// Import creates for every slice entry, a zettel content,
+// a valid filename with all the zettel's metadata and a unique id.
 //
-// In case of success CreateImports returns the number of zettel created and a nil error.
-// In case of an error CreateImports returns 0 (no zettel are created) and the error.
-func (i Importer) CreateImports(path string) (int, error) {
-	contents, err := i.reader.GetContents(path)
-	if err != nil {
-		return 0, err
-	}
-
+// In case of success Import returns the number of zettel created and a nil error.
+// In case of an error Import returns the error and the number of zettel
+// that got persisted until the error occurrence.
+func (i Importer) Import(contents []string) (int, error) {
 	zettel, _, err2 := i.repo.GetZettel()
 	if err2 != nil {
 		return 0, err2
@@ -49,15 +44,15 @@ func (i Importer) CreateImports(path string) (int, error) {
 		if err3 != nil {
 			return 0, err3
 		}
+		zettelFiles[filename] = content
 
+		// Make sure that a following import is not using the same id as this zettel.
 		z, err4 := i.parser.Filename(filename)
 		if err4 != nil {
 			return 0, err4
 		}
-
-		// Make sure that a following import is not using the same id as this zettel.
 		zettel = append(zettel, z)
-		zettelFiles[filename] = content
+
 		continue
 	}
 

@@ -1,6 +1,7 @@
 package imports
 
 import (
+	"fmt"
 	"github.com/crelder/zet/pkg/parse"
 	"github.com/crelder/zet/pkg/transport/repo"
 	"os"
@@ -26,11 +27,16 @@ func TestCreateImports(t *testing.T) {
 		t.Errorf("error removing test files")
 	}
 
-	// Act
 	const impSourcePath = "./testdata/new_zettel_files"
+	contents, err := getContentsFromPath(impSourcePath)
+	if err != nil {
+		t.Errorf("error getting file content: %v", err)
+	}
+
+	// Act
+	n, err := importer.Import(contents)
 
 	// Assert
-	n, err := importer.CreateImports(impSourcePath)
 	if err != nil {
 		t.Errorf("error creating imports. path = %q", err)
 	}
@@ -61,4 +67,36 @@ func removeFiles(testFiles []string) error {
 		}
 	}
 	return nil
+}
+
+func getContentsFromPath(path string) ([]string, error) {
+	var contents []string
+	filepaths, err := os.ReadDir(path)
+	if err != nil {
+		return nil, fmt.Errorf("cli: error %q reading path: %v", err, path)
+	}
+	filepaths = filterAllowed(filepaths)
+
+	for _, fp := range filepaths {
+		dat, _ := os.ReadFile(path + "/" + fp.Name())
+		contents = append(contents, string(dat))
+	}
+	return contents, nil
+}
+
+func filterAllowed(filepaths []os.DirEntry) []os.DirEntry {
+	var fps []os.DirEntry
+	for _, fp := range filepaths {
+		if isAllowed(fp.Name()) {
+			fps = append(fps, fp)
+		}
+	}
+	return fps
+}
+
+func isAllowed(fn string) bool {
+	if fn[len(fn)-3:] == "txt" {
+		return true
+	}
+	return false
 }

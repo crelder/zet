@@ -10,12 +10,12 @@
 //   b) used in more than one package, so that from all other packages the dependencies point only to this package.
 package zet
 
-// Importer is the instance for accessing all functionality regarding
-// importing new text files with thoughts (so called zettel).
+// Importer persists zettel content.
 //
-// CreateImports will persist the text files that lay in path.
+// Import takes one or more zettel contents and persists each content.
+// In case of an error it returns the number of zettel contents already persisted until the occurrence of the error.
 type Importer interface {
-	CreateImports(path string) (int, error)
+	Import(zettelContents []string) (int, error)
 }
 
 // Initiator supports starting with this personal knowledge management system.

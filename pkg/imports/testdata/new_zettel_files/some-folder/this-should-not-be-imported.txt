@@ -1,4 +1,0 @@
-Some, Random, Text, File
-3.3.22
-
-Only the level of the provided folder should be scanned for text files. Subfolders should not be considered.
