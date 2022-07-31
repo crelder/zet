@@ -30,7 +30,7 @@ func TestCreateImports(t *testing.T) {
 11.8.21
 
 Some thought...`
-	err3 := os.Mkdir(pathTestRepo+"/zettel", 0755)
+	err3 := os.MkdirAll(pathTestRepo+"/zettel", 0755)
 	if err3 != nil {
 		t.Errorf("could not create zettel folder: %v", err3)
 	}
