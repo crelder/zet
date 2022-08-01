@@ -24,6 +24,8 @@ func NewApp(importer zet.Importer, viewer zet.Viewer, validator zet.Validator, i
 	}
 }
 
+// TODO: Add signal interrupt.
+
 // Start orchestrates the cli call and calls the respective services in the application.
 func (cli App) Start() error {
 	if len(os.Args) <= 1 {
@@ -47,7 +49,8 @@ func (cli App) Start() error {
 	if subcmd == "init" {
 		if len(os.Args) == 3 {
 			if os.Args[2] == "example" {
-				fmt.Printf("Downloading an example zettelkasten...\n\n")
+				// TODO: Add prompt: "This will download an example zettelkasten from github.com/crelder/zettelkasten_example
+				fmt.Printf("Downloading example zettelkasten...\n\n")
 				err := cli.initiator.InitExample()
 				if err != nil {
 					return err
@@ -98,6 +101,7 @@ func (cli App) Start() error {
 		if len(os.Args) > 2 {
 			return fmt.Errorf("command 'zet view' does not need any parameters")
 		}
+		// TODO: Add prompt "This will delete and recreate these two folders "VIEWS" and "INDEX". Are you sure (Y/n)? n
 		err := cli.viewer.CreateViews()
 		if err != nil {
 			return fmt.Errorf("Could not create views: %v\n", err)
