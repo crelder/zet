@@ -73,12 +73,12 @@ func validate(zettel []zet.Zettel, index zet.Index, bibkeys []string) []error {
 
 	deadLinks := getDeadLinks(zettel)
 	for _, deadLink := range deadLinks {
-		incons = append(incons, fmt.Errorf("zettel: target link not existing: %v", deadLink))
+		incons = append(incons, fmt.Errorf("zettel: link to id %v not existing", deadLink))
 	}
 
 	deadIndexLinks := getDeadIndexLinks(zettel, index)
 	for _, deadIndexLink := range deadIndexLinks {
-		incons = append(incons, fmt.Errorf("index: target link not existing: %v", deadIndexLink))
+		incons = append(incons, fmt.Errorf("index: link to id %v not existing", deadIndexLink))
 	}
 
 	// Missing Bibkey
@@ -87,7 +87,23 @@ func validate(zettel []zet.Zettel, index zet.Index, bibkeys []string) []error {
 		incons = append(incons, fmt.Errorf("reference: missing bibkey %q", missingBibKey))
 	}
 
+	// More than one predecessor
+	tooManyPredecessorsIds := getTooManyPredecessorsIds(zettel)
+	for _, id := range tooManyPredecessorsIds {
+		incons = append(incons, fmt.Errorf("zettel: more than one predecessor: %v", id))
+	}
+
 	return incons
+}
+
+func getTooManyPredecessorsIds(zettel []zet.Zettel) []string {
+	var ids []string
+	for _, z := range zettel {
+		if len(z.Predecessor) > 1 {
+			ids = append(ids, z.Id)
+		}
+	}
+	return ids
 }
 
 func getMissingBibKeys(zettel []zet.Zettel, bibkeys []string) []string {

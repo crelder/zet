@@ -5,7 +5,7 @@ type Zettel struct {
 	Id          string
 	Keywords    []string
 	Folgezettel []string
-	Predecessor []string
+	Predecessor []string // there is none or one predecessor maximum
 	References  []Reference
 	Context     []string
 	Name        string // the filename, e.g. '170212g - Go.txt'

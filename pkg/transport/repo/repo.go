@@ -37,6 +37,7 @@ func New(path string, p zet.Parser) Repo {
 // zet.Zettel are ordered by id (descending).
 //
 // The second parameter []string contains all inconsistencies that occureed during parsing the zettel filename.
+// Only if not an error happened, it will return zettel and inconsistencies.
 func (r Repo) GetZettel() ([]zet.Zettel, []error, error) {
 	var zettels []zet.Zettel
 	files, incons, err := r.getFiles()
@@ -54,37 +55,37 @@ func (r Repo) GetZettel() ([]zet.Zettel, []error, error) {
 
 	})
 
-	i, zettels := addFolgezettel(zettels)
+	var i []error
+	zettels, i, err = addFolgezettel(zettels)
+	if err != nil {
+		return nil, nil, err
+	}
 	incons = append(incons, i...)
 
 	return zettels, incons, nil
 }
 
 // addFolgezettel calculates the Folgezettel for each Zettel.
-// In the filename, only the predecessor zettel are provided, which are used to calculate the Folgezettel for each Zettel.
-//
-// []error returns the inconsistencies found.
-func addFolgezettel(zettels []zet.Zettel) ([]error, []zet.Zettel) {
+// In the filename, only the predecessor zettel are provided,
+// which are used to calculate the Folgezettel for each Zettel.
+// In case of a detected double id it will return an error.
+func addFolgezettel(zettels []zet.Zettel) ([]zet.Zettel, []error, error) {
 	if len(zettels) == 0 {
-		return nil, nil
+		return nil, nil, nil
 	}
+
+	zetMap, err := getZetMap(zettels)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	var incons []error
-
-	zetMap := make(map[string]zet.Zettel) // Could be moved into method.
-	for _, zettel := range zettels {
-		if _, ok := zetMap[zettel.Id]; ok { // This means, that this id was already added, thus it is a double id.
-			incons = append(incons, fmt.Errorf("zettel: not unique id %q", zettel.Id))
-			continue
-		}
-		zetMap[zettel.Id] = zettel
-	}
-
 	var predZettel zet.Zettel
 	for zettelId, zettel := range zetMap {
 		for _, predId := range zettel.Predecessor {
 			var ok bool
 			if predZettel, ok = zetMap[predId]; !ok {
-				incons = append(incons, fmt.Errorf("zettel: predecessor id %v doesn't exist, zettel %v", predId, zettel.Id))
+				incons = append(incons, fmt.Errorf("repo: predecessor id %v doesn't exist, zettel %v", predId, zettel.Id))
 				continue
 			}
 			predZettel.Folgezettel = append(predZettel.Folgezettel, zettelId)
@@ -113,7 +114,18 @@ func addFolgezettel(zettels []zet.Zettel) ([]error, []zet.Zettel) {
 		})
 	}
 
-	return incons, result
+	return result, nil, nil
+}
+
+func getZetMap(zettels []zet.Zettel) (map[string]zet.Zettel, error) {
+	zetMap := make(map[string]zet.Zettel)
+	for _, zettel := range zettels {
+		if _, ok := zetMap[zettel.Id]; ok { // This means, that this id was already added, thus it is a double id.
+			return nil, fmt.Errorf("not unique id %q", zettel.Id)
+		}
+		zetMap[zettel.Id] = zettel
+	}
+	return zetMap, nil
 }
 
 // getFiles returns raw data about zettel.
@@ -121,6 +133,8 @@ func addFolgezettel(zettels []zet.Zettel) ([]error, []zet.Zettel) {
 // All other errors are returned as the last parameter.
 // Invisible files will be skipped - this works only for unix systems, since invisibility is determined
 // by a dot at the beginning of the name.
+//
+// In case of double ids, an error get returned.
 func (r Repo) getFiles() ([]zettelFile, []error, error) {
 
 	// Read all the zettel
