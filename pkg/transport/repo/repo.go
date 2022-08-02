@@ -114,7 +114,6 @@ func getFolgezettelIds(zettels []zet.Zettel) map[string][]string {
 //
 // In case of double ids, an error get returned.
 func (r Repo) getFiles() ([]zettelFile, error) {
-
 	// Read all the zettel
 	var zettelPath = r.path + "/zettel"
 	dirEntries, err := os.ReadDir(zettelPath)
@@ -136,33 +135,6 @@ func (r Repo) getFiles() ([]zettelFile, error) {
 			zettel:   z,
 			filename: file.Name(),
 			path:     zettelPath,
-		})
-	}
-
-	// Read all the works
-	var worksPath = r.path + "/works"
-	_, err2 := os.Stat(worksPath)
-	if err2 != nil { // Work directory doesn't exist, therefore we do not need to check any potential files there.
-		return zettelFiles, nil
-	}
-	dirEntries2, err3 := os.ReadDir(worksPath)
-	if err3 != nil {
-		return nil, fmt.Errorf("repo: %v", err3)
-	}
-
-	var err4 error
-	for _, file := range dirEntries2 {
-		if notValid(file) {
-			continue
-		}
-		z, err4 = r.parser.Filename(file.Name())
-		if err4 != nil {
-			return nil, fmt.Errorf("works: %v", err4)
-		}
-		zettelFiles = append(zettelFiles, zettelFile{
-			zettel:   z,
-			filename: file.Name(),
-			path:     worksPath,
 		})
 	}
 

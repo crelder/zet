@@ -37,9 +37,6 @@ func TestValidate(t *testing.T) {
 		"zettel: more than one predecessor: 170327f": true,
 		"zettel: link to id 170311f not existing":    true,
 		"zettel: id 180112a not unique":              true,
-
-		// TODO: works needs to get deleted
-		//"works: parse Filename: could not parse id from filename \"noId - Something.txt\"": true,
 	}
 
 	if diff := cmp.Diff(got, want); diff != "" {
