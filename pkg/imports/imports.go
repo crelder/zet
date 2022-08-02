@@ -24,7 +24,7 @@ func New(p zet.Parser, repo zet.Repo) Importer {
 // In case of an error Import returns the error and the number of zettel
 // that got persisted until the error occurrence.
 func (i Importer) Import(contents []string) (int, error) {
-	zettel, _, err2 := i.repo.GetZettel()
+	zettel, err2 := i.repo.GetZettel()
 	if err2 != nil {
 		return 0, err2
 	}

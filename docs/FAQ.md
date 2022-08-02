@@ -71,9 +71,7 @@
 
 12. Is the zettelkasten only for raw thoughts?
 
-> In the folder `zettel` are your raw thoughts. If you want, you can add a folder `works/` in your zettelkasten, which contains your finished works like book chapters, thesis, presentations, etc. You can name the filenames like you name your zettel. The program will then consider two folders when scanning: `zettel` and `works`.
-
-> But actually I am stil not sure if this extra folder is necessary. you could as well include your own works in the zettelkasten just by referencing them like any other work via a bibkey and an entry in the `references.bib`.
+> In the folder `zettel` are your raw thoughts. I have a separate folder "library/" where I keep all my final works and pdfs of papers and books. I give a tag to each of my own works, so I can filter them and see all my own final works at a glance.
 
 13. What is the estimated maximum amount of thoughts one will enter over a lifetime?
 

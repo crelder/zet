@@ -24,7 +24,6 @@ import (
 type Persister interface {
 	CreateSyml(prefix string, m map[string][]string) error
 	CreateFolgezettelStruct(prefix string, links map[string]string) error // links[linkName]targetID
-	FileExists(link string) bool
 	CreateInfo(prefix string, m map[string][]string) error
 }
 
@@ -44,17 +43,11 @@ func New(vp Persister, r zet.Repo) Viewer {
 
 // CreateViews creates a folder with different access points (links).
 func (v Viewer) CreateViews() error {
-	exists := v.Persister.FileExists("VIEWS")
-	if exists {
-		return fmt.Errorf(
-			"folder 'VIEWS' exists in the zettelkasten.\nPlease manually delete folder 'VIEWS' in order to execute the command 'views'.")
-	}
-
-	zettel, _, err := v.Repo.GetZettel()
+	zettel, err := v.Repo.GetZettel()
 	if err != nil {
 		return fmt.Errorf("error creating views: %w", err)
 	}
-	index, _, err2 := v.Repo.GetIndex()
+	index, err2 := v.Repo.GetIndex()
 	if err2 != nil {
 		return fmt.Errorf("error creating index: %w", err2)
 	}

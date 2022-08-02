@@ -23,25 +23,23 @@ func New(r zet.Repo) Validator {
 // If the same inconsistency occurs several times, only one is returned, not several.
 // If there are none, it returns nil.
 func (v Validator) Val() ([]error, error) {
-	var incons []error
-	zettel, parsErrs, err := v.Repo.GetZettel()
+	zettel, err := v.Repo.GetZettel()
 	if err != nil {
 		return nil, err
 	}
-	incons = append(incons, parsErrs...)
 
 	// indexParsingErrors
-	index, parsErrs2, err2 := v.Repo.GetIndex()
+	index, err2 := v.Repo.GetIndex()
 	if err2 != nil {
 		return nil, err2
 	}
-	incons = append(incons, parsErrs2...)
 
 	bibkeys, err3 := v.Repo.GetBibkeys()
 	if err3 != nil {
 		return nil, err3
 	}
 
+	var incons []error
 	incons = append(incons, validate(zettel, index, bibkeys)...)
 	incons = makeUnique(incons)
 	sort.Slice(incons, func(i, j int) bool {
@@ -71,6 +69,11 @@ func validate(zettel []zet.Zettel, index zet.Index, bibkeys []string) []error {
 
 	var incons []error
 
+	doubleIds := getNonUniqueIds(zettel)
+	for _, doubleId := range doubleIds {
+		incons = append(incons, fmt.Errorf("zettel: id %v not unique", doubleId))
+	}
+
 	deadLinks := getDeadLinks(zettel)
 	for _, deadLink := range deadLinks {
 		incons = append(incons, fmt.Errorf("zettel: link to id %v not existing", deadLink))
@@ -94,6 +97,20 @@ func validate(zettel []zet.Zettel, index zet.Index, bibkeys []string) []error {
 	}
 
 	return incons
+}
+
+// getNonUniqueIds returns all ids that exist more than once in the zettelkasten.
+// A double id exists only once in the return string.
+func getNonUniqueIds(zettels []zet.Zettel) []string {
+	var doubleIds []string
+	m := make(map[string]bool)
+	for _, zettel := range zettels {
+		if _, exists := m[zettel.Id]; exists {
+			doubleIds = append(doubleIds, zettel.Id)
+		}
+		m[zettel.Id] = true
+	}
+	return doubleIds
 }
 
 func getTooManyPredecessorsIds(zettel []zet.Zettel) []string {

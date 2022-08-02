@@ -52,10 +52,6 @@ func TestCreateIndexViews(t *testing.T) {
 		"VIEWS/unlinked/220115p/references/190119d - Testing - clausen2021 87 - 190119e.txt",
 		// ... or by context
 		"VIEWS/unlinked/220115p/context/220116s - Spezifikation - Marco Fitz - 220115p.pdf",
-
-		// Also, the folder works should be scanned for similarities when giving suggestions for an unlinked zettel when giving suggestions for an unlinked zettel.
-		"VIEWS/unlinked/210328obj/210328obj - Objektorientiert, Programmierung - kernighan2016 155.pdf",
-		"VIEWS/unlinked/210328obj/keywords/190412d - Presentation, Domain Driven Design, Programmierung.txt",
 	}
 
 	for _, tc := range testcases {
