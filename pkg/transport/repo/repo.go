@@ -38,11 +38,11 @@ func New(path string, p zet.Parser) Repo {
 //
 // The second parameter []string contains all inconsistencies that occureed during parsing the zettel filename.
 // Only if not an error happened, it will return zettel and inconsistencies.
-func (r Repo) GetZettel() ([]zet.Zettel, []error, error) {
+func (r Repo) GetZettel() ([]zet.Zettel, error) {
 	var zettels []zet.Zettel
-	files, incons, err := r.getFiles()
+	files, err := r.getFiles()
 	if err != nil {
-		return nil, incons, err
+		return nil, err
 	}
 	for _, zf := range files {
 		zettels = append(zettels, zf.zettel)
@@ -55,51 +55,32 @@ func (r Repo) GetZettel() ([]zet.Zettel, []error, error) {
 
 	})
 
-	var i []error
-	zettels, i, err = addFolgezettel(zettels)
+	zettels, err = addFolgezettel(zettels)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	incons = append(incons, i...)
 
-	return zettels, incons, nil
+	return zettels, nil
 }
 
 // addFolgezettel calculates the Folgezettel for each Zettel.
-// In the filename, only the predecessor zettel are provided,
-// which are used to calculate the Folgezettel for each Zettel.
+// This is needed, because in the filename, only the predecessor zettel are provided.
+// The predecessors are used to calculate the Folgezettel for each Zettel.
 // In case of a detected double id it will return an error.
-func addFolgezettel(zettels []zet.Zettel) ([]zet.Zettel, []error, error) {
+func addFolgezettel(zettels []zet.Zettel) ([]zet.Zettel, error) {
 	if len(zettels) == 0 {
-		return nil, nil, nil
-	}
-
-	zetMap, err := getZetMap(zettels)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var incons []error
-	var predZettel zet.Zettel
-	for zettelId, zettel := range zetMap {
-		for _, predId := range zettel.Predecessor {
-			var ok bool
-			if predZettel, ok = zetMap[predId]; !ok {
-				incons = append(incons, fmt.Errorf("repo: predecessor id %v doesn't exist, zettel %v", predId, zettel.Id))
-				continue
-			}
-			predZettel.Folgezettel = append(predZettel.Folgezettel, zettelId)
-			zetMap[predId] = predZettel
-		}
+		return nil, nil
 	}
 
 	var result []zet.Zettel
-	for _, zettel := range zetMap {
+	folgezettelIds := getFolgezettelIds(zettels)
+	for _, zettel := range zettels {
+		zettel.Folgezettel = folgezettelIds[zettel.Id]
 		result = append(result, zettel)
 	}
 
-	// Sort zettel by Id to make sure, that following results e.g. building the index,
-	// always returning the same results.
+	// Sort zettel by Id and sort the automatically added Folgezettel ids to make sure,
+	// that following operations e.g. building the index always returns a reproducible result.
 	sort.Slice(result, func(i, j int) bool {
 		return result[i].Id < result[j].Id
 
@@ -109,23 +90,20 @@ func addFolgezettel(zettels []zet.Zettel) ([]zet.Zettel, []error, error) {
 		sort.Slice(z.Folgezettel, func(i, j int) bool {
 			return z.Folgezettel[i] < z.Folgezettel[j]
 		})
-		sort.Slice(z.Predecessor, func(i, j int) bool {
-			return z.Predecessor[i] < z.Predecessor[j]
-		})
 	}
 
-	return result, nil, nil
+	return result, nil
 }
 
-func getZetMap(zettels []zet.Zettel) (map[string]zet.Zettel, error) {
-	zetMap := make(map[string]zet.Zettel)
+// getFolgezettelIds returns a map that has the id of a zettel and all follow up zettel ids (Folgezettel).
+func getFolgezettelIds(zettels []zet.Zettel) map[string][]string {
+	zetMap := make(map[string][]string)
 	for _, zettel := range zettels {
-		if _, ok := zetMap[zettel.Id]; ok { // This means, that this id was already added, thus it is a double id.
-			return nil, fmt.Errorf("not unique id %q", zettel.Id)
+		for _, predecessor := range zettel.Predecessor { // Normally this should be just one, but just in case...
+			zetMap[predecessor] = append(zetMap[predecessor], zettel.Id)
 		}
-		zetMap[zettel.Id] = zettel
 	}
-	return zetMap, nil
+	return zetMap
 }
 
 // getFiles returns raw data about zettel.
@@ -135,17 +113,16 @@ func getZetMap(zettels []zet.Zettel) (map[string]zet.Zettel, error) {
 // by a dot at the beginning of the name.
 //
 // In case of double ids, an error get returned.
-func (r Repo) getFiles() ([]zettelFile, []error, error) {
+func (r Repo) getFiles() ([]zettelFile, error) {
 
 	// Read all the zettel
 	var zettelPath = r.path + "/zettel"
 	dirEntries, err := os.ReadDir(zettelPath)
 	if err != nil {
-		return nil, nil, fmt.Errorf("repo: %v", err)
+		return nil, fmt.Errorf("repo: %v", err)
 	}
 	var zettelFiles []zettelFile
 	var z zet.Zettel
-	var incons []error
 	for _, file := range dirEntries {
 		if notValid(file) {
 			continue
@@ -153,8 +130,7 @@ func (r Repo) getFiles() ([]zettelFile, []error, error) {
 		var parseErr error
 		z, parseErr = r.parser.Filename(file.Name())
 		if parseErr != nil {
-			incons = append(incons, fmt.Errorf("zettel: %v", parseErr))
-			continue
+			return nil, parseErr
 		}
 		zettelFiles = append(zettelFiles, zettelFile{
 			zettel:   z,
@@ -167,11 +143,11 @@ func (r Repo) getFiles() ([]zettelFile, []error, error) {
 	var worksPath = r.path + "/works"
 	_, err2 := os.Stat(worksPath)
 	if err2 != nil { // Work directory doesn't exist, therefore we do not need to check any potential files there.
-		return zettelFiles, incons, nil
+		return zettelFiles, nil
 	}
 	dirEntries2, err3 := os.ReadDir(worksPath)
 	if err3 != nil {
-		return nil, incons, fmt.Errorf("repo: %v", err3)
+		return nil, fmt.Errorf("repo: %v", err3)
 	}
 
 	var err4 error
@@ -181,8 +157,7 @@ func (r Repo) getFiles() ([]zettelFile, []error, error) {
 		}
 		z, err4 = r.parser.Filename(file.Name())
 		if err4 != nil {
-			incons = append(incons, fmt.Errorf("works: %v", err4))
-			continue
+			return nil, fmt.Errorf("works: %v", err4)
 		}
 		zettelFiles = append(zettelFiles, zettelFile{
 			zettel:   z,
@@ -191,7 +166,7 @@ func (r Repo) getFiles() ([]zettelFile, []error, error) {
 		})
 	}
 
-	return zettelFiles, incons, nil
+	return zettelFiles, nil
 }
 
 // notValid checks if the filename is valid. Only visible files are valid.
@@ -209,16 +184,19 @@ func notValid(file os.DirEntry) bool {
 // An Index is used as access point into a line of thought (=zettel chain) regarding this keyword.
 // ParsingErrors are returned with the second parameter []error.
 // All other errors via the last parameter.
-func (r Repo) GetIndex() (zet.Index, []error, error) {
+func (r Repo) GetIndex() (zet.Index, error) {
 	var index map[string][]string
 	f, err := os.ReadFile(r.path + "/index.txt")
 	if err != nil {
-		return nil, nil, fmt.Errorf("repo: %v", err)
+		return nil, fmt.Errorf("repo: %v", err)
 	}
 
 	index, parseErr := r.parser.Index(string(f))
+	if parseErr != nil {
+		return nil, parseErr[0]
+	}
+	return index, nil
 
-	return index, parseErr, nil
 }
 
 func (r Repo) GetBibkeys() ([]string, error) {
@@ -294,7 +272,7 @@ func persist(oldname, newname string) error {
 }
 
 func (r Repo) getFilePath(id string) (string, error) {
-	zfs, _, err := r.getFiles()
+	zfs, err := r.getFiles()
 	if err != nil {
 		return "", err
 	}
@@ -315,11 +293,6 @@ func existsOrMake(dir string) error {
 	}
 
 	return nil
-}
-
-func (r Repo) FileExists(link string) bool {
-	_, err := os.Stat(r.path + "/" + link)
-	return err == nil
 }
 
 // CreateFolgezettelStruct creates a tree like link structure, so called "Folgezettel" in the repo.

@@ -65,8 +65,8 @@ type Validator interface {
 // In case of success it returns a nil error and the number of zettel persisted.
 // In case of a failure, it returns the error and the number of zettel it has written until the error occurred.
 type Repo interface {
-	GetZettel() ([]Zettel, []error, error)
-	GetIndex() (Index, []error, error)
+	GetZettel() ([]Zettel, error)
+	GetIndex() (Index, error)
 	GetBibkeys() ([]string, error)
 	Save(content map[string]string) (int, error)
 }
