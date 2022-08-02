@@ -6,6 +6,7 @@ import (
 	"github.com/crelder/zet"
 	"io/fs"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -271,49 +272,28 @@ func existsOrMake(dir string) error {
 // This represents the physical representation how Niklas Luhmann arranged his Zettel in his
 // wooden zettelkasten boxes. This is used for creating chains of thoughts.
 // Topic is e.g. "Evolution" and the map contains all links[linkname]targetId
-func (r Repo) CreateFolgezettelStruct(topic string, links map[string]string) error {
+func (r Repo) CreateFolgezettelStruct(links map[string]string) error {
 	for linkName, targetId := range links {
-		// we also pass a root id of the chain of thoughts, which we use to generate the correct chain of thoughts.
-		// But this is a workaround. Refactor!
-		if linkName == "root" {
-			continue
-		}
+
 		fp, err := r.getFilePath(targetId)
 		if err != nil {
 			return err
 		}
 
 		oldname := fp
-		newname := r.path + "/VIEWS/index/" + topic + "/" + links["root"] + "/" + linkName
+		newname := path.Join(r.path, linkName)
 		dir, _ := filepath.Split(newname)
-		err2 := existsOrMake(dir)
-		if err2 != nil {
-			return err2
+		err = existsOrMake(dir)
+		if err != nil {
+			return err
 		}
 
-		err3 := os.Symlink(oldname, newname)
-		if err3 != nil {
-			return err3
+		err = os.Symlink(oldname, newname)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
-}
-
-// GetContents reads the files in the path and extracts from allowed files the text content.
-func (r Repo) GetContents(path string) ([]string, error) {
-	var contents []string
-
-	filepaths, err := os.ReadDir(path)
-	if err != nil {
-		return nil, fmt.Errorf("repo GetContents: %v for path: %v", err, path)
-	}
-	filepaths = filterAllowed(filepaths)
-
-	for _, fp := range filepaths {
-		dat, _ := os.ReadFile(path + "/" + fp.Name())
-		contents = append(contents, string(dat))
-	}
-	return contents, nil
 }
 
 func exists(path string) bool {
@@ -323,23 +303,6 @@ func exists(path string) bool {
 		return false
 	}
 	return true
-}
-
-func filterAllowed(filepaths []os.DirEntry) []os.DirEntry {
-	var fps []os.DirEntry
-	for _, fp := range filepaths {
-		if isAllowed(fp.Name()) {
-			fps = append(fps, fp)
-		}
-	}
-	return fps
-}
-
-func isAllowed(fn string) bool {
-	if fn[len(fn)-3:] == "txt" {
-		return true
-	}
-	return false
 }
 
 // Save creates text files with a valid filename and the content.

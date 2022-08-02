@@ -3,8 +3,6 @@ package view
 import (
 	"fmt"
 	"github.com/crelder/zet"
-	"math"
-	"sort"
 )
 
 // Persister creates symlinks to zettel. These symlinks that serve as access points into your zettelkasten.
@@ -22,8 +20,7 @@ import (
 //
 // CreateInfo persists some information like a list of keywords used in your zettelkasten and the number of occurrences.
 type Persister interface {
-	CreateSyml(prefix string, m map[string][]string) error
-	CreateFolgezettelStruct(prefix string, links map[string]string) error // links[linkName]targetID
+	CreateFolgezettelStruct(links map[string]string) error // links[linkName]targetID
 	CreateInfo(prefix string, m map[string][]string) error
 }
 
@@ -52,63 +49,106 @@ func (v Viewer) CreateViews() error {
 		return fmt.Errorf("error creating index: %w", err2)
 	}
 
-	err3 := v.createInfos(zettel)
-	if err3 != nil {
-		return err3
+	// INDEX
+	// Create a method, which returns all paths like "Komplexität/180215a - Komplexität, ..../180215a - Komplexität, ..."
+	folgezettelMap, err := getFolgezettelMap(zettel, index)
+	if err != nil {
+		return err
 	}
+
+	// Persist all these paths via a call v.IndexPersister.Persist(map[paths][]ids). It creates already everything in "zettelkasten/INDEX/"
+	// Concrete Implementierung heißt FsIndexPersister.
+	err = v.Persister.CreateFolgezettelStruct(folgezettelMap)
+	if err != nil {
+		return err
+	}
+
+	// INFO
+	// Method where you get the info: ids
+	// Method where you get the info: keywords
+	// Method where you get the info: context
+	// Method where you get the info: references
+	// Method where you get the info: unlinked
+	// Method where you get the info: unindexed
+	// always in the format: [id, Häufigkeit]
+	//
+	// Call method that persists all these info v.InfoPersister.Persist(name, []string).
+	// Concrete Implementierung heißt CSVPersister.
+
+	//err3 := v.createInfos(zettel)
+	//if err3 != nil {
+	//	return err3
+	//}
 
 	//Creating index links
-	for topic := range index {
-		for _, id := range index[topic] {
-			links := getFolgezettel(id, zettel)
-			err6 := v.Persister.CreateFolgezettelStruct(topic, links)
-			if err6 != nil {
-				return err6
-			}
-		}
-	}
+	//for topic := range index {
+	//	for _, id := range index[topic] {
+	//		links := getFolgezettel(id, zettel)
+	//		err6 := v.Persister.CreateFolgezettelStruct(topic, links)
+	//		if err6 != nil {
+	//			return err6
+	//		}
+	//	}
+	//}
 
 	// Creating unlinked links
-	m := make(map[string][]string)
-	unlinked := getUnlinked(20, zettel)
-	for _, u := range unlinked {
-		m["unlinked/"+u] = []string{u}
-		s := getSimKeywords(getZettel(u, zettel), zettel)
-		s = substract(s, u)
-		if s != nil {
-			m["unlinked/"+u+"/keywords"] = s
-		}
-		s2 := getSimReferences(getZettel(u, zettel), zettel)
-		s2 = substract(s2, u)
-		if s2 != nil {
-			m["unlinked/"+u+"/references"] = s2
-		}
-		s3 := getSimContext(getZettel(u, zettel), zettel)
-		s3 = substract(s3, u)
-		if s3 != nil {
-			m["unlinked/"+u+"/context"] = s3
-		}
-	}
-	err7 := v.Persister.CreateSyml("", m)
-	if err7 != nil {
-		return err7
-	}
+	//m := make(map[string][]string)
+	//unlinked := getUnlinked(20, zettel)
+	//for _, u := range unlinked {
+	//	m["unlinked/"+u] = []string{u}
+	//	s := getSimKeywords(getZettel(u, zettel), zettel)
+	//	s = substract(s, u)
+	//	if s != nil {
+	//		m["unlinked/"+u+"/keywords"] = s
+	//	}
+	//	s2 := getSimReferences(getZettel(u, zettel), zettel)
+	//	s2 = substract(s2, u)
+	//	if s2 != nil {
+	//		m["unlinked/"+u+"/references"] = s2
+	//	}
+	//	s3 := getSimContext(getZettel(u, zettel), zettel)
+	//	s3 = substract(s3, u)
+	//	if s3 != nil {
+	//		m["unlinked/"+u+"/context"] = s3
+	//	}
+	//}
+	//err7 := v.Persister.CreateSyml("", m)
+	//if err7 != nil {
+	//	return err7
+	//}
 
 	return nil
 }
 
-// substract removes u from s.
-// In case s is nil, it returns nil.
-// In case u is an empty string, it return s.
-func substract(s []string, u string) []string {
-	var result []string
-	for _, s2 := range s {
-		if s2 == u {
-			continue
+// getFolgezettelMap contains the business logic for converting the
+// tree structure of a zettelkasten into a flat structure in a file directory.
+func getFolgezettelMap(zettel []zet.Zettel, index zet.Index) (map[string]string, error) {
+	var result = make(map[string]string)
+	for topic := range index {
+		for _, id := range index[topic] {
+			var err error
+			result, err = mergeMaps(result, getFolgezettel(id, zettel))
+			if err != nil {
+				return nil, err
+			}
 		}
-		result = append(result, s2)
 	}
-	return result
+	result2 := make(map[string]string)
+	for path, id := range result {
+		result2["INDEX/"+path] = id
+	}
+	return result2, nil
+}
+
+func mergeMaps(result map[string]string, folgezettel map[string]string) (map[string]string, error) {
+	for pathName, id := range folgezettel {
+		if _, ok := result[pathName]; ok {
+			return nil, fmt.Errorf("duplicate pathName %v for id %v", pathName, id)
+		}
+		result[pathName] = id
+	}
+	return result, nil
+
 }
 
 func (v Viewer) createInfos(zettel []zet.Zettel) error {
@@ -181,46 +221,6 @@ func getFolgezettel(id string, zettel []zet.Zettel) map[string]string {
 	traveledIds = make(map[string]bool)
 	sl := map[string]string{}
 	result := addSymlink(id, sl, 0, "", zettel)
-	if len(result) > 0 {
-		sl["root"] = id // This derives from how the map should be filled: with links; this is a workaround forgenerating the correct link structure.
-	}
-	return result
-}
-
-// getSimKeywords takes a zettel and returns the ids of zettel
-// that have similar keywords.
-//
-// "Similar keywords" is a simple comparison:
-// if the first five letters between two keywords match, it is considered "similar" by keyword.
-// If one of the to-be-compared keywords is shorter than five letters,
-// the two keywords get compared just with the length of the shortest keyword.
-//
-// The returned ids are sorted alphabetically and made unique (one id doesn't appear more than once).
-//
-// If there are no similarity matches and empty slice is returned.
-func getSimKeywords(zettel zet.Zettel, zettels []zet.Zettel) []string {
-	if len(zettel.Keywords) == 0 {
-		return []string{}
-	}
-
-	var result []string
-	for _, k := range zettel.Keywords {
-		for _, z := range zettels {
-			for _, keyword := range z.Keywords {
-				if isSimilarKeyword(k, keyword) {
-					result = append(result, z.Id)
-				}
-
-			}
-		}
-	}
-
-	result = removeDuplicates(result)
-
-	sort.Slice(result, func(i, j int) bool {
-		return result[i] < result[j]
-	})
-
 	return result
 }
 
@@ -240,76 +240,6 @@ func removeDuplicates(strgs []string) []string {
 		}
 	}
 	return uniqueIds
-}
-
-// getSimReferences takes a zettel and returns the ids of zettel
-// that have similar references. "Similar references" is a simple comparison:
-// If two zettel have at least one bibkey in common, the two zettel are similar via the references.
-func getSimReferences(zettel zet.Zettel, zettels []zet.Zettel) []string {
-	if len(zettel.References) == 0 {
-		return []string{}
-	}
-
-	var result []string
-	for _, c := range zettel.References {
-		for _, z := range zettels {
-			for _, reference := range z.References {
-				if c.Bibkey == reference.Bibkey {
-					result = append(result, z.Id)
-				}
-
-			}
-		}
-	}
-
-	result = removeDuplicates(result)
-
-	sort.Slice(result, func(i, j int) bool {
-		return result[i] < result[j]
-	})
-
-	return result
-}
-
-// getSimContext takes a zettel and returns the ids of zettel
-// that have similar context. "Similar context" is a simple comparison:
-// If the context is identical, the two zettel are "similar" via the context.
-func getSimContext(zettel zet.Zettel, zettels []zet.Zettel) []string {
-	if len(zettel.Context) == 0 {
-		return []string{}
-	}
-
-	var result []string
-	for _, c := range zettel.Context {
-		for _, z := range zettels {
-			for _, context := range z.Context {
-				if c == context {
-					result = append(result, z.Id)
-				}
-
-			}
-		}
-	}
-
-	result = removeDuplicates(result)
-
-	sort.Slice(result, func(i, j int) bool {
-		return result[i] < result[j]
-	})
-
-	return result
-}
-
-// isSimilarKeyword returns true if the first five letters between two keywords match.
-// If one of the to be compared keywords is shorter than five letters,
-// the two keywords get compared just with the length of the shortest keyword.
-// In all other cases it returns false.
-func isSimilarKeyword(kw1, kw2 string) bool {
-	if len(kw1) < 5 || len(kw2) < 5 {
-		minLen := int(math.Min(float64(len(kw1)), float64(len(kw2))))
-		return kw1[:minLen] == kw2[:minLen]
-	}
-	return kw1[:5] == kw2[:5]
 }
 
 func addSymlink(id string, symlinks map[string]string, counter int, path string, zettel []zet.Zettel) map[string]string {
