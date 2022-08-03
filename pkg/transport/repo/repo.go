@@ -9,7 +9,6 @@ import (
 	"path"
 	"path/filepath"
 	"sort"
-	"strconv"
 	"strings"
 )
 
@@ -213,19 +212,20 @@ func (r Repo) CreateSyml(prefix string, m map[string][]string) error {
 }
 
 // CreateInfo persists some statistics in form of a txt file about a topic like e.g. keywords, context or literature.
-func (r Repo) CreateInfo(topic string, m map[string][]string) error {
-	err := existsOrMake(r.path + "/VIEWS/stats")
+func (r Repo) PersistInfo(m map[string][]string) error {
+	err := existsOrMake(r.path + "/INFO")
 	if err != nil {
 		return err
 	}
-	var stats []byte
-	for word, ids := range m {
-		stats = append(stats, []byte(word+";"+strconv.Itoa(len(ids))+"\n")...)
+
+	for topic, data := range m {
+		d := strings.Join(data, "\n")
+		err := os.WriteFile(r.path+"/INFO/"+topic+".csv", []byte(d), fs.ModePerm)
+		if err != nil {
+			return err
+		}
 	}
-	err2 := os.WriteFile(r.path+"/VIEWS/stats/"+topic+".csv", stats, fs.ModePerm)
-	if err2 != nil {
-		return err2
-	}
+
 	return nil
 }
 
@@ -272,7 +272,7 @@ func existsOrMake(dir string) error {
 // This represents the physical representation how Niklas Luhmann arranged his Zettel in his
 // wooden zettelkasten boxes. This is used for creating chains of thoughts.
 // Topic is e.g. "Evolution" and the map contains all links[linkname]targetId
-func (r Repo) Persist(links map[string]string) error {
+func (r Repo) PersistIndex(links map[string]string) error {
 	for linkName, targetId := range links {
 
 		fp, err := r.getFilePath(targetId)

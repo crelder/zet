@@ -6,5 +6,8 @@
 /pkg/initialize/tmp_test_init_example/
 /pkg/initialize/tmp_test/
 /pkg/view/testdata/zettelkasten/INDEX/
+/pkg/view/testdata/zettelkasten/INFO/
+/pkg/view/testdata/zettelkasten2/INDEX/
+/pkg/view/testdata/zettelkasten2/INFO/
 main
 /pkg/imports/testdata/zettelkasten/zettel/211005p - Post-capitalism.txt

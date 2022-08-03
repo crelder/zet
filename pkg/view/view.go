@@ -5,35 +5,30 @@ import (
 	"github.com/crelder/zet"
 )
 
-// IndexPersister creates symlinks to zettel. These symlinks that serve as access points into your zettelkasten.
-// The path where the links lie is specified within the IndexPersister.
+// ViewPersister creates symlinks to zettel. These symlinks that serve as access points into your zettelkasten.
+// The path where the links lie is specified within the ViewPersister.
 //
-// Persist creates a tree-like symlink structure, so-called "Folgezettel".
+// PersistIndex creates a tree-like symlink structure, so-called "Folgezettel".
 // This represents the physical representation of how Niklas Luhmann arranged his Zettel in his
 // wooden zettelkasten boxes. This is used for creating chains of thoughts.
 
-// CreateInfo persists some information like a list of keywords used in your zettelkasten and the number of occurrences.
-type IndexPersister interface {
-	Persist(links map[string]string) error // links[linkName]targetID
-}
-
-type InfoPersister interface {
-	CreateInfo(prefix string, m map[string][]string) error
+// PersistInfo persists some information like a list of keywords used in your zettelkasten and the number of occurrences.
+type ViewPersister interface {
+	PersistIndex(links map[string]string) error // links[linkName]targetID
+	PersistInfo(m map[string][]string) error
 }
 
 // Viewer contains the application entry point for all operations regarding views upon your zettelkasten.
 // Viewer satisfies the zet.Viewer interface.
 type Viewer struct {
-	IndexPersister IndexPersister
-	InfoPersister  InfoPersister
-	Repo           zet.Repo
+	ViewPersister ViewPersister
+	Repo          zet.Repo
 }
 
-func New(ip IndexPersister, infoP InfoPersister, r zet.Repo) Viewer {
+func New(ip ViewPersister, InfoPersister, r zet.Repo) Viewer {
 	return Viewer{
-		IndexPersister: ip,
-		InfoPersister:  infoP,
-		Repo:           r,
+		ViewPersister: ip,
+		Repo:          r,
 	}
 }
 
@@ -43,9 +38,14 @@ func (v Viewer) CreateViews() error {
 	if err != nil {
 		return fmt.Errorf("error creating views: %w", err)
 	}
-	index, err2 := v.Repo.GetIndex()
-	if err2 != nil {
-		return fmt.Errorf("error creating index: %w", err2)
+	index, err := v.Repo.GetIndex()
+	if err != nil {
+		return fmt.Errorf("error creating index: %w", err)
+	}
+
+	references, err := v.Repo.GetBibkeys()
+	if err != nil {
+		return err
 	}
 
 	// INDEX
@@ -55,29 +55,21 @@ func (v Viewer) CreateViews() error {
 		return err
 	}
 
-	// Persist all these paths via a call v.IndexPersister.Persist(map[paths][]ids). It creates already everything in "zettelkasten/INDEX/"
+	// PersistIndex all these paths via a call v.ViewPersister.PersistIndex(map[paths][]ids). It creates already everything in "zettelkasten/INDEX/"
 	// Concrete Implementierung heißt FsIndexPersister.
-	err = v.IndexPersister.Persist(folgezettelMap)
+	err = v.ViewPersister.PersistIndex(folgezettelMap)
 	if err != nil {
 		return err
 	}
 
-	// INFO
-	// Method where you get the info: ids
-	// Method where you get the info: keywords
-	// Method where you get the info: context
-	// Method where you get the info: references
-	// Method where you get the info: unlinked
-	// Method where you get the info: unindexed
-	// always in the format: [id, Häufigkeit]
-	//
-	// Call method that persists all these info v.InfoPersister.Persist(name, []string).
+	// Call method that persists all these info v.InfoPersister.PersistIndex(name, []string).
 	// Concrete Implementierung heißt CSVPersister.
+	infos := getInfos(zettel, index, references)
 
-	//err3 := v.createInfos(zettel)
-	//if err3 != nil {
-	//	return err3
-	//}
+	err = v.ViewPersister.PersistInfo(infos)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

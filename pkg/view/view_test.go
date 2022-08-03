@@ -71,6 +71,8 @@ func TestCreateInfo(t *testing.T) {
 	// Remove this directory, which might got created in a previous test
 	infoPath := pathTestRepo + "/INFO"
 	clearPath(infoPath)
+	indexPath := pathTestRepo + "/INDEX"
+	clearPath(indexPath)
 
 	// Act
 	err = viewer.CreateViews()
@@ -79,59 +81,24 @@ func TestCreateInfo(t *testing.T) {
 	}
 
 	// Assert
-	type wantedFiles struct {
-		filename string
-		content  string
-	}
+	want := map[string]string{
+		"ids.csv":        "170224a;1\n180522a;2\n190119e;1",
+		"keywords.csv":   "Complexity;3\nInterface;1\nPolymorphism;1\nTesting;1",
+		"context.csv":    "GopherCon EU 2022;2",
+		"references.csv": "clausen2021;1",
+		"bibkeys.csv":    "kernighan1999;1\nsedgewick2011;1",
 
-	want := []wantedFiles{
-		{
-			"ids.csv",
-			"170224a;1\n180522a;2\n190119e;1",
-		},
-		{
-			"keywords.csv",
-			"Complexity;3\nInterface;1\nPolymorphism;1\nTesting;1",
-		},
+		// 190119e is also unliked, but is references in the index.
+		"unlinked.csv": "180522a;1",
 
-		{
-			"context.csv",
-			"GopherCon EU 2022;2",
-		},
-		{
-			"references.csv",
-			"clausen2021;1",
-		},
-		{
-			"bibkeys.csv",
-			"kernighan1999;1\nsedgewick2011;1",
-		},
-		{
-			"unlinked.csv",
-			"180522a;1", // 190119e is also unliked, but is references in the index.
-		},
-		{
-			"unindexed.csv",
-			// There is no index entry for this zettel,
-			//although a chain of thoughts with the maximal length of one branch of 2 exists.
-			"170224a;2",
-		},
-		{
-			"links.csv",
-			"170224a;1\n190119d;1",
-		},
-		//{
-		//	"date.csv",
-		//	"Komplexität;2\nPresntation;1",
-		//},
-		//{
-		//	"index.csv",
-		//	"Komplexität;2\nProgrammieren, Objektorientiert;1",
-		//},
-		//{
-		//	"unrelated.csv",
-		//	"TODO",
-		//},
+		// There is no index entry for this zettel,
+		//although a chain of thoughts with the maximal length of one branch of 2 exists.
+		"unindexed.csv": "170224a;2",
+
+		//"links.csv":     "170224a;1\n190119d;1",
+		//"date.csv":      "TODO",
+		//"index.csv":     "Komplexität;2\nProgrammieren, Objektorientiert;1",
+		//"unrelated.csv": "TODO",
 	}
 
 	dir, err := os.ReadDir(infoPath)
