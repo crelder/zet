@@ -23,14 +23,75 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string
 	infos["references"] = references
 
 	unlinked := AddFrequency(getUnlinked(zettel, index))
-	infos["unlinked"] = unlinked
+	if unlinked != nil {
+		infos["unlinked"] = unlinked
+	}
 
-	//unindexed := AddFrequency(getUnindexed(zettel, index))
-	//infos["unindexed"] = unindexed
+	unindexed := getUnindexed(zettel, index)
+	infos["unindexed"] = unindexed
 
 	infos["bibkeys"] = AddFrequency(bibkeys)
 
 	return infos
+}
+
+func getUnindexed(zettels []zet.Zettel, index zet.Index) []string {
+	var rootId string
+	var depth int
+	m := make(map[string]int)
+	for _, zettel := range zettels {
+		rootId, depth = getRootIdAndMaxDepth(zettel, zettels)
+		if depth == 1 { // There is just one zettel, so no chain of thoughts
+			continue
+		}
+		if isInIndex(rootId, index) {
+			continue
+		}
+		_, ok := m[rootId]
+		if !ok {
+			m[rootId] = depth
+		}
+		if ok {
+			if m[rootId] < depth {
+				m[rootId] = depth
+			}
+		}
+	}
+
+	// Convert m to a slice and sort
+	var result []string
+	for id, maxDepth := range m {
+		result = append(result, id+";"+strconv.Itoa(maxDepth))
+	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i] > result[j]
+	})
+
+	return result
+
+}
+
+func getRootIdAndMaxDepth(zettel zet.Zettel, zettels []zet.Zettel) (string, int) {
+	m := make(map[string]zet.Zettel)
+	for _, z := range zettels {
+		m[z.Id] = z
+	}
+
+	currentZettel := zettel
+	count := 1
+	for {
+		if len(currentZettel.Predecessor) == 0 {
+			break
+		}
+		zt, ok := m[currentZettel.Predecessor[0]]
+		if !ok {
+			break
+		}
+		currentZettel = zt
+		count += 1
+	}
+	return currentZettel.Id, count
 }
 
 func getIds(zettels []zet.Zettel) []string {

@@ -89,11 +89,12 @@ func TestCreateInfo(t *testing.T) {
 		"bibkeys.csv":    "kernighan1999;1\nsedgewick2011;1",
 
 		// 190119e is also unliked, but is references in the index.
-		"unlinked.csv": "180522a;1",
+		//"unlinked.csv": "180522a;1",
 
-		// There is no index entry for this zettel,
-		//although a chain of thoughts with the maximal length of one branch of 2 exists.
-		"unindexed.csv": "170224a;2",
+		// There is no index entry for this zettel.
+		// There are two chains of thoughts branching of this zettel with id 170224a.
+		// It returns the max length, and the total amount of zettel under this branch.
+		"unindexed.csv": "170224a;3",
 
 		//"links.csv":     "170224a;1\n190119d;1",
 		//"date.csv":      "TODO",

@@ -3,13 +3,14 @@
 ## Bug fixes and Refactorings
 
 1. Better error handling for getZettel(id, zettels) in index.go
-2. Remove deletion in view_test.go, since the repo will do it automatically
-3. Folder `VIEWS/unlinked` shows sometimes less than 10 zettel. It should be always 10 (if there are 10).
-4. Folder `VIEWS/unlinked` should not contain ids that already exist int the index.
-5. Add test case that in `VIEWS/unlinked` are only these files, that have no predecessor link
-6. Add test case that checks that circular dependencies are detected in `VIEWS/index`.
-7. Add missing testcase for `VIEWS/unlinked`: shouldn't list `220122a - 191212b.txt`
-8. Delete AddFolgezettel, because it is implicitly also tested via validate and views tests? Does order matter? It should be in the way it is in the filename.
+2. Also add info in unindexed, how many zettel are under this chain of thought
+3. Remove deletion in view_test.go, since the repo will do it automatically
+4. Folder `VIEWS/unlinked` shows sometimes less than 10 zettel. It should be always 10 (if there are 10).
+5. Folder `VIEWS/unlinked` should not contain ids that already exist int the index.
+6. Add test case that in `VIEWS/unlinked` are only these files, that have no predecessor link
+7. Add test case that checks that circular dependencies are detected in `VIEWS/index`.
+8. Add missing testcase for `VIEWS/unlinked`: shouldn't list `220122a - 191212b.txt`
+9. Delete AddFolgezettel, because it is implicitly also tested via validate and views tests? Does order matter? It should be in the way it is in the filename.
 
 ## New features for `zet validate`
 
