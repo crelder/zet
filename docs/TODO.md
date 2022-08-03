@@ -2,6 +2,7 @@
 
 ## Bug fixes and Refactorings
 
+1. Better error handling for getZettel(id, zettels) in index.go
 2. Folder `VIEWS/unlinked` shows sometimes less than 10 zettel. It should be always 10 (if there are 10).
 3. Folder `VIEWS/unlinked` should not contain ids that already exist int the index.
 4. Add test case that in `VIEWS/unlinked` are only these files, that have no predecessor link

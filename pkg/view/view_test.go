@@ -16,7 +16,7 @@ func TestCreateIndexViews(t *testing.T) {
 	var pathTestRepo = wd + "/testdata/zettelkasten"
 	parser := parse.New()
 	r := repo.New(pathTestRepo, parser)
-	viewer := New(r, r)
+	viewer := New(r, r, r)
 
 	// Remove this directory, which might got created in a previous test
 	viewPath := pathTestRepo + "/INDEX"

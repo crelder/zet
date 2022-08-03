@@ -5,30 +5,35 @@ import (
 	"github.com/crelder/zet"
 )
 
-// Persister creates symlinks to zettel. These symlinks that serve as access points into your zettelkasten.
-// The path where the links lie is specified within the Persister.
+// IndexPersister creates symlinks to zettel. These symlinks that serve as access points into your zettelkasten.
+// The path where the links lie is specified within the IndexPersister.
 //
-// CreateFolgezettelStruct creates a tree-like symlink structure, so-called "Folgezettel".
+// Persist creates a tree-like symlink structure, so-called "Folgezettel".
 // This represents the physical representation of how Niklas Luhmann arranged his Zettel in his
 // wooden zettelkasten boxes. This is used for creating chains of thoughts.
 
 // CreateInfo persists some information like a list of keywords used in your zettelkasten and the number of occurrences.
-type Persister interface {
-	CreateFolgezettelStruct(links map[string]string) error // links[linkName]targetID
+type IndexPersister interface {
+	Persist(links map[string]string) error // links[linkName]targetID
+}
+
+type InfoPersister interface {
 	CreateInfo(prefix string, m map[string][]string) error
 }
 
 // Viewer contains the application entry point for all operations regarding views upon your zettelkasten.
 // Viewer satisfies the zet.Viewer interface.
 type Viewer struct {
-	Persister Persister
-	Repo      zet.Repo
+	IndexPersister IndexPersister
+	InfoPersister  InfoPersister
+	Repo           zet.Repo
 }
 
-func New(vp Persister, r zet.Repo) Viewer {
+func New(ip IndexPersister, infoP InfoPersister, r zet.Repo) Viewer {
 	return Viewer{
-		Persister: vp,
-		Repo:      r,
+		IndexPersister: ip,
+		InfoPersister:  infoP,
+		Repo:           r,
 	}
 }
 
@@ -52,7 +57,7 @@ func (v Viewer) CreateViews() error {
 
 	// Persist all these paths via a call v.IndexPersister.Persist(map[paths][]ids). It creates already everything in "zettelkasten/INDEX/"
 	// Concrete Implementierung heißt FsIndexPersister.
-	err = v.Persister.CreateFolgezettelStruct(folgezettelMap)
+	err = v.IndexPersister.Persist(folgezettelMap)
 	if err != nil {
 		return err
 	}
@@ -77,12 +82,11 @@ func (v Viewer) CreateViews() error {
 	return nil
 }
 
-// TODO: Also return error, if zettel is not there
-func getZettel(id string, zettel []zet.Zettel) zet.Zettel {
+func getZettel(id string, zettel []zet.Zettel) (zet.Zettel, error) {
 	for _, z := range zettel {
 		if z.Id == id {
-			return z
+			return z, nil
 		}
 	}
-	return zet.Zettel{}
+	return zet.Zettel{}, fmt.Errorf("zettel with id %v not found", id)
 }

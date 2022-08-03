@@ -213,7 +213,7 @@ func (r Repo) CreateSyml(prefix string, m map[string][]string) error {
 }
 
 // CreateInfo persists some statistics in form of a txt file about a topic like e.g. keywords, context or literature.
-func (r Repo) CreateInfo(filename string, m map[string][]string) error {
+func (r Repo) CreateInfo(topic string, m map[string][]string) error {
 	err := existsOrMake(r.path + "/VIEWS/stats")
 	if err != nil {
 		return err
@@ -222,7 +222,7 @@ func (r Repo) CreateInfo(filename string, m map[string][]string) error {
 	for word, ids := range m {
 		stats = append(stats, []byte(word+";"+strconv.Itoa(len(ids))+"\n")...)
 	}
-	err2 := os.WriteFile(r.path+"/VIEWS/stats/"+filename+".csv", stats, fs.ModePerm)
+	err2 := os.WriteFile(r.path+"/VIEWS/stats/"+topic+".csv", stats, fs.ModePerm)
 	if err2 != nil {
 		return err2
 	}
@@ -272,7 +272,7 @@ func existsOrMake(dir string) error {
 // This represents the physical representation how Niklas Luhmann arranged his Zettel in his
 // wooden zettelkasten boxes. This is used for creating chains of thoughts.
 // Topic is e.g. "Evolution" and the map contains all links[linkname]targetId
-func (r Repo) CreateFolgezettelStruct(links map[string]string) error {
+func (r Repo) Persist(links map[string]string) error {
 	for linkName, targetId := range links {
 
 		fp, err := r.getFilePath(targetId)

@@ -7,19 +7,19 @@ import (
 
 func (v Viewer) createInfos(zettel []zet.Zettel) error {
 	kv := getKeyLinks(zettel)
-	err3 := v.Persister.CreateInfo("keywords", kv)
+	err3 := v.InfoPersister.CreateInfo("keywords", kv)
 	if err3 != nil {
 		return fmt.Errorf("error creating info for keywords: %w", err3)
 	}
 
 	con := getConLinks(zettel)
-	err4 := v.Persister.CreateInfo("context", con)
+	err4 := v.InfoPersister.CreateInfo("context", con)
 	if err4 != nil {
 		return err4
 	}
 
 	cit := getRefLinks(zettel)
-	err5 := v.Persister.CreateInfo("references", cit)
+	err5 := v.InfoPersister.CreateInfo("references", cit)
 	if err5 != nil {
 		return err5
 	}

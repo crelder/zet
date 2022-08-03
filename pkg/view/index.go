@@ -55,10 +55,11 @@ func addSymlink(id string, symlinks map[string]string, counter int, path string,
 	}
 	traveledIds[id] = true
 
-	z := getZettel(id, zettels)
-	if z.Id == "" {
+	z, err := getZettel(id, zettels)
+	if err != nil {
 		return symlinks
 	}
+
 	newName := path + "/" + fmt.Sprintf("%02d", counter) + "_" + z.Name
 	symlinks[newName] = z.Id
 	counter++
