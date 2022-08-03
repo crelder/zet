@@ -84,7 +84,7 @@ func TestCreateInfo(t *testing.T) {
 	want := map[string]string{
 		"ids.csv":        "170224a;1\n180522a;2\n190119e;1",
 		"keywords.csv":   "Complexity;3\nInterface;1\nPolymorphism;1\nTesting;1",
-		"context.csv":    "GopherCon EU 2022;2",
+		"context.csv":    "GopherCon;2",
 		"references.csv": "clausen2021;1",
 		"bibkeys.csv":    "kernighan1999;1\nsedgewick2011;1",
 

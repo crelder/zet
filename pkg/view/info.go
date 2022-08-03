@@ -22,7 +22,7 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string
 	references := AddFrequency(getReferences(zettel))
 	infos["references"] = references
 
-	unlinked := AddFrequency(getUnlinked(zettel))
+	unlinked := AddFrequency(getUnlinked(zettel, index))
 	infos["unlinked"] = unlinked
 
 	//unindexed := AddFrequency(getUnindexed(zettel, index))
@@ -71,14 +71,30 @@ func getReferences(zettel []zet.Zettel) []string {
 	return references
 }
 
-func getUnlinked(zettels []zet.Zettel) []string {
+func getUnlinked(zettels []zet.Zettel, index zet.Index) []string {
 	var unlinked []string
 	for _, zettel := range zettels {
-		if len(zettel.Predecessor) == 0 {
-			unlinked = append(unlinked, zettel.Id)
+		if len(zettel.Predecessor) != 0 {
+			continue
 		}
+		if isInIndex(zettel.Id, index) {
+			continue
+		}
+
+		unlinked = append(unlinked, zettel.Id)
 	}
 	return unlinked
+}
+
+func isInIndex(id string, index zet.Index) bool {
+	for _, ids := range index {
+		for _, i := range ids {
+			if id == i {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func AddFrequency(s []string) []string {
@@ -94,7 +110,7 @@ func AddFrequency(s []string) []string {
 	}
 
 	sort.Slice(result, func(i, j int) bool {
-		return result[i] > result[j]
+		return result[i] < result[j]
 	})
 
 	return result
