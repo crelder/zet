@@ -1,3 +1,2 @@
-Komplexität: 190119e
-Programmieren: 220115p
-Circular Dependency: 220122a
+Komplexität: 190119e, 220122a
+Programmieren, Objektorientiert: 210328obj

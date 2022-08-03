@@ -32,11 +32,16 @@ func TestCreateIndexViews(t *testing.T) {
 	// testcases for checking if views are correctly generated
 	testcases := []string{
 		"INDEX/Komplexität/190119e/00_190119e - Komplexität.txt",
-		"INDEX/Komplexität/190119e/01_190119d/00_190119d - Testing - clausen2021 87 - 190119e.txt",
-		"INDEX/Komplexität/190119e/02_180522a - Komplexität, Thermodynamische Tiefe - 190119e.png",
-		"INDEX/Komplexität/190119e/03_210520var - Varietät, Komplexität - 180522a.txt",
-		"INDEX/Programmieren/220115p/00_220115p - Refactoring, Programmieren - Marco Fitz, clausen2021 5.pdf",
-		"INDEX/Programmieren/220115p/01_220116s - Spezifikation - Marco Fitz - 220115p.pdf",
+		"INDEX/Komplexität/190119e/01_190119d - Testing - clausen2021 87 - 190119e.txt",
+		"INDEX/Komplexität/190119e/02_180522a/00_180522a - Komplexität, Thermodynamische Tiefe - 190119d.png",
+		"INDEX/Komplexität/190119e/02_180522a/01_220116s/00_220116s - Spezifikation - Marco Fitz - 180522a.pdf",
+		"INDEX/Komplexität/190119e/02_180522a/02_210520var - Varietät, Komplexität - 180522a.txt",
+		"INDEX/Komplexität/190119e/03_170224a - Polymorphismus, Objektorientierte Programmierung, Schnittstelle - 190119d.png",
+		"INDEX/Komplexität/190119e/04_190412d - Presentation, Domain Driven Design, Programmierung - 170224a.txt",
+
+		"INDEX/Komplexität/220122a/00_220122a - Some keyword.txt",
+
+		"INDEX/Programmieren, Objektorientiert/210328obj/00_210328obj - Objektorientiert, Programmierung - kernighan2016 155.pdf",
 	}
 
 	for _, tc := range testcases {
