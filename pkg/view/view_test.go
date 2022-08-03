@@ -35,7 +35,6 @@ func TestCreateIndexViews(t *testing.T) {
 		"INDEX/Komplexität/190119e/01_190119d/00_190119d - Testing - clausen2021 87 - 190119e.txt",
 		"INDEX/Komplexität/190119e/02_180522a - Komplexität, Thermodynamische Tiefe - 190119e.png",
 		"INDEX/Komplexität/190119e/03_210520var - Varietät, Komplexität - 180522a.txt",
-		// Fehlt da noch ein Pfad?
 		"INDEX/Programmieren/220115p/00_220115p - Refactoring, Programmieren - Marco Fitz, clausen2021 5.pdf",
 		"INDEX/Programmieren/220115p/01_220116s - Spezifikation - Marco Fitz - 220115p.pdf",
 	}

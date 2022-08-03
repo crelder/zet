@@ -76,3 +76,13 @@ func (v Viewer) CreateViews() error {
 
 	return nil
 }
+
+// TODO: Also return error, if zettel is not there
+func getZettel(id string, zettel []zet.Zettel) zet.Zettel {
+	for _, z := range zettel {
+		if z.Id == id {
+			return z
+		}
+	}
+	return zet.Zettel{}
+}

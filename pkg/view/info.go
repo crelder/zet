@@ -82,15 +82,6 @@ func removeDuplicates(strgs []string) []string {
 	return uniqueIds
 }
 
-func getZettel(id string, zettel []zet.Zettel) zet.Zettel {
-	for _, z := range zettel {
-		if z.Id == id {
-			return z
-		}
-	}
-	return zet.Zettel{}
-}
-
 // getUnlinked gets the n lastest (zettel are sorted ascending by date) ids of zettel, that have no reference
 // to another zettel.
 func getUnlinked(n int, zettel []zet.Zettel) []string {
