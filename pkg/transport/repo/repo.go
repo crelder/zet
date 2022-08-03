@@ -187,7 +187,7 @@ func (r Repo) PersistInfo(m map[string][]string) error {
 		return fmt.Errorf("repo: %v", err)
 	}
 
-	err = makePath(r.path + "/INFO")
+	err = existsOrMake(r.path + "/INFO")
 	if err != nil {
 		return err
 	}
@@ -198,21 +198,6 @@ func (r Repo) PersistInfo(m map[string][]string) error {
 		if err != nil {
 			return err
 		}
-	}
-
-	return nil
-}
-
-func persist(oldname, newname string) error {
-	dir, _ := filepath.Split(newname)
-	err := makePath(dir)
-	if err != nil {
-		return err
-	}
-
-	err2 := os.Symlink(oldname, newname)
-	if err2 != nil {
-		return fmt.Errorf("repo: could not create symlink: %v\n", err2)
 	}
 
 	return nil
@@ -233,7 +218,7 @@ func (r Repo) getFilePath(id string) (string, error) {
 	return "", fmt.Errorf("id not found: %v", id)
 }
 
-func makePath(dir string) error {
+func existsOrMake(dir string) error {
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
 		return fmt.Errorf("repo: %v", err)
@@ -248,10 +233,6 @@ func makePath(dir string) error {
 // Topic is e.g. "Evolution" and the map contains all links[linkname]targetId
 func (r Repo) PersistIndex(links map[string]string) error {
 	for linkName, targetId := range links {
-		err := os.RemoveAll(path.Join(r.path, "INDEX"))
-		if err != nil {
-			return fmt.Errorf("repo: %v", err)
-		}
 
 		fp, err := r.getFilePath(targetId)
 		if err != nil {
@@ -261,7 +242,7 @@ func (r Repo) PersistIndex(links map[string]string) error {
 		oldname := fp
 		newname := path.Join(r.path, linkName)
 		dir, _ := filepath.Split(newname)
-		err = makePath(dir)
+		err = existsOrMake(dir)
 		if err != nil {
 			return err
 		}

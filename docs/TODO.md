@@ -5,18 +5,12 @@
 1. Better error handling for getZettel(id, zettels) in index.go
 2. Also add info in unindexed, how many zettel are under this chain of thought
 3. Remove deletion in view_test.go, since the repo will do it automatically
-4. Add more functionality to info
-//"links.csv":     "170224a;1\n190119d;1",
-//"date.csv":      "TODO",
-//"index.csv":     "Komplexität;2\nProgrammieren, Objektorientiert;1",
-//"unrelated.csv": "TODO",
-// gephi, json of zettelkasten, index, ids
-5. Folder `VIEWS/unlinked` shows sometimes less than 10 zettel. It should be always 10 (if there are 10).
-6. Folder `VIEWS/unlinked` should not contain ids that already exist int the index.
-7. Add test case that in `VIEWS/unlinked` are only these files, that have no predecessor link
-8. Add test case that checks that circular dependencies are detected in `VIEWS/index`.
-9. Add missing testcase for `VIEWS/unlinked`: shouldn't list `220122a - 191212b.txt`
-10. Delete AddFolgezettel, because it is implicitly also tested via validate and views tests? Does order matter? It should be in the way it is in the filename.
+4. Folder `VIEWS/unlinked` shows sometimes less than 10 zettel. It should be always 10 (if there are 10).
+5. Folder `VIEWS/unlinked` should not contain ids that already exist int the index.
+6. Add test case that in `VIEWS/unlinked` are only these files, that have no predecessor link
+7. Add test case that checks that circular dependencies are detected in `VIEWS/index`.
+8. Add missing testcase for `VIEWS/unlinked`: shouldn't list `220122a - 191212b.txt`
+9. Delete AddFolgezettel, because it is implicitly also tested via validate and views tests? Does order matter? It should be in the way it is in the filename.
 
 ## New features for `zet validate`
 
