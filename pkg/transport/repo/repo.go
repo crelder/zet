@@ -180,40 +180,14 @@ func (r Repo) GetBibkeys() ([]string, error) {
 	return r.parser.Reference(string(f)), nil
 }
 
-// CreateSyml creates links into your zettelkasten.
-// Prefix specifies the folder where the links get places,
-// it is type of the view (e.g. keywords, literature sources, context).
-// m contains as keys the keyword and as []string one or more ids.
-func (r Repo) CreateSyml(prefix string, m map[string][]string) error {
-	for link, ids := range m {
-		for _, id := range ids {
-			fp, err := r.getFilePath(id)
-			_, filename := filepath.Split(fp)
-			if err != nil {
-				return err
-			}
-
-			oldname := fp
-			var newname string
-			if prefix != "" {
-				newname = r.path + "/VIEWS/" + prefix + "/" + link + "/" + filename
-			}
-			if prefix == "" {
-				newname = r.path + "/VIEWS/" + link + "/" + filename
-			}
-
-			err2 := persist(oldname, newname)
-			if err2 != nil {
-				return err2
-			}
-		}
-	}
-	return nil
-}
-
 // CreateInfo persists some statistics in form of a txt file about a topic like e.g. keywords, context or literature.
 func (r Repo) PersistInfo(m map[string][]string) error {
-	err := existsOrMake(r.path + "/INFO")
+	err := os.RemoveAll(path.Join(r.path, "INFO"))
+	if err != nil {
+		return fmt.Errorf("repo: %v", err)
+	}
+
+	err = makePath(r.path + "/INFO")
 	if err != nil {
 		return err
 	}
@@ -231,7 +205,7 @@ func (r Repo) PersistInfo(m map[string][]string) error {
 
 func persist(oldname, newname string) error {
 	dir, _ := filepath.Split(newname)
-	err := existsOrMake(dir)
+	err := makePath(dir)
 	if err != nil {
 		return err
 	}
@@ -259,7 +233,7 @@ func (r Repo) getFilePath(id string) (string, error) {
 	return "", fmt.Errorf("id not found: %v", id)
 }
 
-func existsOrMake(dir string) error {
+func makePath(dir string) error {
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
 		return fmt.Errorf("repo: %v", err)
@@ -274,6 +248,10 @@ func existsOrMake(dir string) error {
 // Topic is e.g. "Evolution" and the map contains all links[linkname]targetId
 func (r Repo) PersistIndex(links map[string]string) error {
 	for linkName, targetId := range links {
+		err := os.RemoveAll(path.Join(r.path, "INDEX"))
+		if err != nil {
+			return fmt.Errorf("repo: %v", err)
+		}
 
 		fp, err := r.getFilePath(targetId)
 		if err != nil {
@@ -283,7 +261,7 @@ func (r Repo) PersistIndex(links map[string]string) error {
 		oldname := fp
 		newname := path.Join(r.path, linkName)
 		dir, _ := filepath.Split(newname)
-		err = existsOrMake(dir)
+		err = makePath(dir)
 		if err != nil {
 			return err
 		}

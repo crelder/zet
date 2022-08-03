@@ -27,10 +27,10 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string
 		infos["unlinked"] = unlinked
 	}
 
-	unindexed := getUnindexed(zettel, index)
-	infos["unindexed"] = unindexed
-
 	infos["bibkeys"] = AddFrequency(bibkeys)
+
+	//unindexed := getUnindexed(zettel, index)
+	//infos["unindexed"] = unindexed
 
 	return infos
 }
@@ -80,15 +80,19 @@ func getRootIdAndMaxDepth(zettel zet.Zettel, zettels []zet.Zettel) (string, int)
 
 	currentZettel := zettel
 	count := 1
+	//traveledIds := make(map[string]bool)
 	for {
 		if len(currentZettel.Predecessor) == 0 {
 			break
 		}
 		zt, ok := m[currentZettel.Predecessor[0]]
-		if !ok {
+		if !ok { // Somehow this zettel with this id doesn't exist.
 			break
 		}
 		currentZettel = zt
+		//if _, ok := traveledIds[currentZettel.Id]; ok { // There must be a loop in the tree structure
+		//	return nil, 0, fmt.Errorf("id %v already visited")
+		//}
 		count += 1
 	}
 	return currentZettel.Id, count
