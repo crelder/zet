@@ -1,0 +1,9 @@
+Varietät, Komplexität
+20.5.21
+@ropohl2012 71
+
+Ropohl unterscheidet zwischen Varietät (der Anzahl der Teile eines Systems) und Komplexität (der Relationen zwischen diesen Teilen des Systems) und merkt an, dass diese unterschiedlich in der Systemtheorie verwendet werden, diese Festlegung hier geht auf Ashby 1974 zurück. vgl. Ropohl 2012 S.71
+
+Deshalb wird wahrscheinlich in Büchern über Software-Design im Zusammenhang mit Komplexität immer von Abhängigkeiten gesprochen (und nicht von Anzahl der Klassen, etc.), weil dies, die Relationen, direkt mit Komplexität zusammenhängt - wie aus dem oberen hervorgeht.
+
+Siehe Buch: A Philosophy Of Software Design. Hier werden Gründe für Komplexität in Softwaresystemen genannt.

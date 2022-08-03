@@ -75,7 +75,7 @@ These examples show how you solve problems 1 and 2 in the problem statement abov
 Link each zettel to a previous zettel by providing an ID at the end of a filename. Since the zettel are arranged in your
 folder `zettel` in an associative way (ordered by date, since the ID uses the creation date), you can put them in a
 logical order by using the entries in the `index.txt` and the command `zet views`. This will create a
-folder `VIEWS/index/` which holds for each thematic topic a list of symlinks to your zettel.
+folder `VIEWS/index/` which holds for each thematic topic a list of links to your zettel.
 
 You can now use your file browser to display the logical chain of thoughts.
 

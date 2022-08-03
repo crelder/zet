@@ -247,7 +247,7 @@ func (r Repo) PersistIndex(links map[string]string) error {
 			return err
 		}
 
-		err = os.Symlink(oldname, newname)
+		err = os.Link(oldname, newname)
 		if err != nil {
 			return err
 		}

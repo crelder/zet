@@ -5,10 +5,10 @@ import (
 	"github.com/crelder/zet"
 )
 
-// ViewPersister creates symlinks to zettel. These symlinks that serve as access points into your zettelkasten.
+// ViewPersister creates links to zettel. These links that serve as access points into your zettelkasten.
 // The path where the links lie is specified within the ViewPersister.
 //
-// PersistIndex creates a tree-like symlink structure, so-called "Folgezettel".
+// PersistIndex creates a tree-like link structure, so-called "Folgezettel".
 // This represents the physical representation of how Niklas Luhmann arranged his Zettel in his
 // wooden zettelkasten boxes. This is used for creating chains of thoughts.
 
@@ -25,7 +25,7 @@ type Viewer struct {
 	Repo          zet.Repo
 }
 
-func New(ip ViewPersister, InfoPersister, r zet.Repo) Viewer {
+func New(ip ViewPersister, r zet.Repo) Viewer {
 	return Viewer{
 		ViewPersister: ip,
 		Repo:          r,
@@ -48,13 +48,11 @@ func (v Viewer) CreateViews() error {
 		return err
 	}
 
-	// INDEX
 	// Create a method, which returns all paths like "Komplexität/180215a - Komplexität, ..../180215a - Komplexität, ..."
 	folgezettelMap, err := getFolgezettelMap(zettel, index)
 	if err != nil {
 		return err
 	}
-
 	// PersistIndex all these paths via a call v.ViewPersister.PersistIndex(map[paths][]ids). It creates already everything in "zettelkasten/INDEX/"
 	// Concrete Implementierung heißt FsIndexPersister.
 	err = v.ViewPersister.PersistIndex(folgezettelMap)

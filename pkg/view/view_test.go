@@ -18,7 +18,7 @@ func TestCreateIndexViews(t *testing.T) {
 	var pathTestRepo = wd + "/testdata/zettelkasten"
 	parser := parse.New()
 	r := repo.New(pathTestRepo, parser)
-	viewer := New(r, r, r)
+	viewer := New(r, r)
 
 	// Remove this directory, which might got created in a previous test
 	viewPath := pathTestRepo + "/INDEX"
@@ -52,7 +52,7 @@ func TestCreateIndexViews(t *testing.T) {
 
 	for _, tc := range testcases {
 		if _, err := os.Stat(pathTestRepo + "/" + tc); err != nil {
-			t.Errorf("Symlink was not created: %+v, ", tc)
+			t.Errorf("link was not created: %+v, ", tc)
 		}
 	}
 }
@@ -66,7 +66,7 @@ func TestCreateInfo(t *testing.T) {
 	var pathTestRepo = wd + "/testdata/zettelkasten2"
 	parser := parse.New()
 	r := repo.New(pathTestRepo, parser)
-	viewer := New(r, r, r)
+	viewer := New(r, r)
 
 	// Remove this directory, which might got created in a previous test
 	infoPath := pathTestRepo + "/INFO"
@@ -90,11 +90,6 @@ func TestCreateInfo(t *testing.T) {
 
 		// 190119e is also unliked, but is references in the index.
 		"unlinked.csv": "180522a;1",
-
-		// There is no index entry for this zettel.
-		// There are two chains of thoughts branching of this zettel with id 170224a.
-		// It returns the max length, and the total amount of zettel under this branch.
-		"unindexed.csv": "170224a;3",
 	}
 
 	dir, err := os.ReadDir(infoPath)
@@ -105,6 +100,9 @@ func TestCreateInfo(t *testing.T) {
 	// map[filename]content
 	got := make(map[string]string)
 	for _, dirEntry := range dir {
+		if dirEntry.Name() == "unindexed.csv" { // For now we will test this in a separate test case
+			continue
+		}
 		file, err := os.ReadFile(path.Join(infoPath, dirEntry.Name()))
 		if err != nil {
 			t.Errorf("error reading file %v: %v", path.Join(infoPath, dirEntry.Name()), err)
@@ -113,6 +111,46 @@ func TestCreateInfo(t *testing.T) {
 	}
 
 	if diff := cmp.Diff(got, want); diff != "" {
+		t.Errorf(diff)
+	}
+}
+
+func TestUnindexed(t *testing.T) {
+	// Arrange
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Errorf("could not get the current working dir")
+	}
+	var pathTestRepo = wd + "/testdata/zettelkasten3"
+	parser := parse.New()
+	r := repo.New(pathTestRepo, parser)
+	viewer := New(r, r)
+
+	// Remove this directory, which might got created in a previous test
+	infoPath := pathTestRepo + "/INFO"
+	clearPath(infoPath)
+	indexPath := pathTestRepo + "/INDEX"
+	clearPath(indexPath)
+
+	// Act
+	err = viewer.CreateViews()
+	if err != nil {
+		t.Errorf("Could not generate views: %v", err)
+	}
+
+	// Assert
+	// There is no index entry for this zettel.
+	// There are two chains of thoughts branching of this zettel with id 170224a.
+	// It returns the max length, and the total amount of zettel under this branch.
+	want := "190119e;4"
+
+	unindexedFileName := "unindexed.csv"
+	got, err := os.ReadFile(path.Join(infoPath, unindexedFileName))
+	if err != nil {
+		t.Errorf("error reading file %v: %v", path.Join(infoPath, unindexedFileName), err)
+	}
+
+	if diff := cmp.Diff(string(got), want); diff != "" {
 		t.Errorf(diff)
 	}
 }
