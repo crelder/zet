@@ -78,5 +78,5 @@ func getZettel(id string, zettel []zet.Zettel) (zet.Zettel, error) {
 			return z, nil
 		}
 	}
-	return zet.Zettel{}, fmt.Errorf("zettel with id %v not found", id)
+	return zet.Zettel{}, fmt.Errorf("view: zettel with id %v not found", id)
 }

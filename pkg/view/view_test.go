@@ -105,7 +105,7 @@ func TestCreateInfo(t *testing.T) {
 		}
 		file, err := os.ReadFile(path.Join(infoPath, dirEntry.Name()))
 		if err != nil {
-			t.Errorf("error reading file %v: %v", path.Join(infoPath, dirEntry.Name()), err)
+			t.Errorf("error reading file: %v", err)
 		}
 		got[dirEntry.Name()] = string(file)
 	}
@@ -142,7 +142,7 @@ func TestUnindexed(t *testing.T) {
 	// There is no index entry for this zettel.
 	// There are two chains of thoughts branching of this zettel with id 170224a.
 	// It returns the max length, and the total amount of zettel under this branch.
-	want := "190119e;4"
+	want := "190119e;3"
 
 	unindexedFileName := "unindexed.csv"
 	got, err := os.ReadFile(path.Join(infoPath, unindexedFileName))

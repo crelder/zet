@@ -1,7 +1,9 @@
 package view
 
 import (
+	"fmt"
 	"github.com/crelder/zet"
+	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -35,64 +37,86 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string
 	return infos
 }
 
+// getUnindexed returns a list of ids, that are not in the index.
+// The method returns for every id the number of follow up zettel it has (Folgezettel), e.g. 190315d;6.
+// This means that zettel with id 190315d has 6 Folgezettel.
 func getUnindexed(zettels []zet.Zettel, index zet.Index) []string {
-	var rootId string
-	var depth int
-	m := make(map[string]int)
+	unindexedIds := make(map[string]int)
+	var maxDepth int
+	var ok bool
 	for _, zettel := range zettels {
-		rootId, depth = getRootIdAndMaxDepth(zettel, zettels)
-		if depth == 1 { // There is just one zettel, so no chain of thoughts
+		id, depth := getRootAndMaxLength(zettel, zettels, index)
+		if depth == 0 || id == "" {
 			continue
 		}
-		if isInIndex(rootId, index) {
+		if maxDepth, ok = unindexedIds[id]; !ok {
+			unindexedIds[id] = maxDepth
 			continue
 		}
-		_, ok := m[rootId]
-		if !ok {
-			m[rootId] = depth
-		}
-		if ok {
-			if m[rootId] < depth {
-				m[rootId] = depth
-			}
+		if depth > maxDepth {
+			unindexedIds[id] = depth
+			continue
 		}
 	}
 
-	// Convert m to a slice and sort
-	var result []string
-	for id, maxDepth := range m {
-		result = append(result, id+";"+strconv.Itoa(maxDepth))
+	var results []string
+	for id, n := range unindexedIds {
+		results = append(results, fmt.Sprintf("%v;%v", id, n))
 	}
 
-	sort.Slice(result, func(i, j int) bool {
-		return result[i] > result[j]
+	sort.Slice(results, func(i, j int) bool {
+		return results[i] < results[j]
 	})
 
-	return result
-
+	return results
 }
 
-func getRootIdAndMaxDepth(zettel zet.Zettel, zettels []zet.Zettel) (string, int) {
-	m := make(map[string]zet.Zettel)
-	for _, z := range zettels {
-		m[z.Id] = z
-	}
+func getRootAndMaxLength(zettel zet.Zettel, zettels []zet.Zettel, index zet.Index) (string, int) {
+	travelledZettelIds := make(map[string]bool)
+	currentZ := zettel
+	var count int
+	var err error
 
-	currentZettel := zettel
-	count := 1
 	for {
-		if len(currentZettel.Predecessor) == 0 {
-			break
+		if _, ok := traveledIds[currentZ.Id]; ok {
+			return "", 0 // Is it good to handle it like this?
 		}
-		zt, ok := m[currentZettel.Predecessor[0]]
-		if !ok {
-			break
+		if currentZ.Predecessor == nil {
+			if isInIndex(currentZ.Id, index) {
+				return "", 0
+			}
+			return currentZ.Id, count
 		}
-		currentZettel = zt
+		travelledZettelIds[currentZ.Id] = true
+		currentZ, err = getZettel(currentZ.Predecessor[0], zettels) // TODO: Handle error!
+		if err != nil {
+			log.Fatalf("%v", err)
+		}
 		count += 1
 	}
-	return currentZettel.Id, count
 }
+
+//func getRootIdAndMaxDepth(zettel zet.Zettel, zettels []zet.Zettel) (string, int) {
+//	m := make(map[string]zet.Zettel)
+//	for _, z := range zettels {
+//		m[z.Id] = z
+//	}
+//
+//	currentZettel := zettel
+//	count := 1
+//	for {
+//		if len(currentZettel.Predecessor) == 0 {
+//			break
+//		}
+//		zt, ok := m[currentZettel.Predecessor[0]]
+//		if !ok {
+//			break
+//		}
+//		currentZettel = zt
+//		count += 1
+//	}
+//	return currentZettel.Id, count
+//}
 
 func getIds(zettels []zet.Zettel) []string {
 	var ids []string
