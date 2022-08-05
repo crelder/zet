@@ -43,14 +43,9 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string
 func getUnindexed(zettels []zet.Zettel, index zet.Index) []string {
 	unindexedIds := make(map[string]int)
 	var maxDepth int
-	var ok bool
 	for _, zettel := range zettels {
 		id, depth := getRootAndMaxLength(zettel, zettels, index)
-		if depth == 0 || id == "" {
-			continue
-		}
-		if maxDepth, ok = unindexedIds[id]; !ok {
-			unindexedIds[id] = maxDepth
+		if isIrrelevant(id, depth) { // TODO: Rework interface, so that no "" ids are returned.
 			continue
 		}
 		if depth > maxDepth {
@@ -58,7 +53,14 @@ func getUnindexed(zettels []zet.Zettel, index zet.Index) []string {
 			continue
 		}
 	}
+	return convertToStringSlice(unindexedIds)
+}
 
+func isIrrelevant(id string, depth int) bool {
+	return depth == 0 || id == ""
+}
+
+func convertToStringSlice(unindexedIds map[string]int) []string {
 	var results []string
 	for id, n := range unindexedIds {
 		results = append(results, fmt.Sprintf("%v;%v", id, n))
@@ -67,28 +69,29 @@ func getUnindexed(zettels []zet.Zettel, index zet.Index) []string {
 	sort.Slice(results, func(i, j int) bool {
 		return results[i] < results[j]
 	})
-
 	return results
 }
 
 func getRootAndMaxLength(zettel zet.Zettel, zettels []zet.Zettel, index zet.Index) (string, int) {
-	travelledZettelIds := make(map[string]bool)
-	currentZ := zettel
-	var count int
-	var err error
+	var (
+		z         = zettel
+		travelled = make(map[string]bool)
+		count     int
+		err       error
+	)
 
 	for {
-		if _, ok := traveledIds[currentZ.Id]; ok {
+		if _, ok := traveledIds[z.Id]; ok {
 			return "", 0 // Is it good to handle it like this?
 		}
-		if currentZ.Predecessor == nil {
-			if isInIndex(currentZ.Id, index) {
+		if z.Predecessor == nil {
+			if isInIndex(z.Id, index) {
 				return "", 0
 			}
-			return currentZ.Id, count
+			return z.Id, count
 		}
-		travelledZettelIds[currentZ.Id] = true
-		currentZ, err = getZettel(currentZ.Predecessor[0], zettels) // TODO: Handle error!
+		travelled[z.Id] = true
+		z, err = getZettel(z.Predecessor[0], zettels) // TODO: Handle error!
 		if err != nil {
 			log.Fatalf("%v", err)
 		}
