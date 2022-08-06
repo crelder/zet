@@ -6,7 +6,7 @@ import (
 	"github.com/crelder/zet/pkg/initialize"
 	"github.com/crelder/zet/pkg/parse"
 	"github.com/crelder/zet/pkg/transport/cli"
-	"github.com/crelder/zet/pkg/transport/repo"
+	"github.com/crelder/zet/pkg/transport/fs"
 	"github.com/crelder/zet/pkg/validate"
 	"github.com/crelder/zet/pkg/view"
 	"log"
@@ -41,10 +41,10 @@ func createApp() (cli.App, error) {
 
 	// Wire app together
 	parser := parse.New()
-	r := repo.New(wd, parser)
-	viewer := view.New(r, r)
-	importer := imports.New(parser, r)
-	validator := validate.New(r)
+	repo := fs.New(wd, parser)
+	viewer := view.New(repo, repo)
+	importer := imports.New(parser, repo)
+	validator := validate.New(repo)
 	initiator := initialize.New(wd)
 
 	return cli.NewApp(importer, viewer, validator, initiator), nil

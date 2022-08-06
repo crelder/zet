@@ -3,7 +3,7 @@ package imports
 import (
 	"fmt"
 	"github.com/crelder/zet/pkg/parse"
-	"github.com/crelder/zet/pkg/transport/repo"
+	"github.com/crelder/zet/pkg/transport/fs"
 	"os"
 	"testing"
 )
@@ -16,8 +16,8 @@ func TestCreateImports(t *testing.T) {
 	}
 	var pathTestRepo = wd + "/testdata/zettelkasten"
 	p := parse.New()
-	r := repo.New(pathTestRepo, p)
-	importer := New(p, r)
+	repo := fs.New(pathTestRepo, p)
+	importer := New(p, repo)
 
 	// Rebuild a clean state of the zettel folder
 	err2 := os.RemoveAll(pathTestRepo + "/zettel")

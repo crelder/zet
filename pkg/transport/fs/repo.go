@@ -1,4 +1,4 @@
-package repo
+package fs
 
 import (
 	"errors"
@@ -119,7 +119,7 @@ func (r Repo) getFiles() ([]zettelFile, error) {
 	var zettelPath = r.path + "/zettel"
 	dirEntries, err := os.ReadDir(zettelPath)
 	if err != nil {
-		return nil, fmt.Errorf("repo: %v", err)
+		return nil, fmt.Errorf("fs: %v", err)
 	}
 	var zettelFiles []zettelFile
 	var z zet.Zettel
@@ -161,7 +161,7 @@ func (r Repo) GetIndex() (zet.Index, error) {
 	var index map[string][]string
 	f, err := os.ReadFile(r.path + "/index.txt")
 	if err != nil {
-		return nil, fmt.Errorf("repo: %v", err)
+		return nil, fmt.Errorf("fs: %v", err)
 	}
 
 	index, parseErr := r.parser.Index(string(f))
@@ -175,7 +175,7 @@ func (r Repo) GetIndex() (zet.Index, error) {
 func (r Repo) GetBibkeys() ([]string, error) {
 	f, err := os.ReadFile(r.path + "/references.bib")
 	if err != nil {
-		return nil, fmt.Errorf("repo: %v", err)
+		return nil, fmt.Errorf("fs: %v", err)
 	}
 
 	return r.parser.Reference(string(f)), nil
@@ -238,7 +238,7 @@ func persist(oldname, newname string) error {
 
 	err2 := os.Symlink(oldname, newname)
 	if err2 != nil {
-		return fmt.Errorf("repo: could not create symlink: %v\n", err2)
+		return fmt.Errorf("fs: could not create symlink: %v\n", err2)
 	}
 
 	return nil
@@ -262,13 +262,13 @@ func (r Repo) getFilePath(id string) (string, error) {
 func existsOrMake(dir string) error {
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
-		return fmt.Errorf("repo: %v", err)
+		return fmt.Errorf("fs: %v", err)
 	}
 
 	return nil
 }
 
-// CreateFolgezettelStruct creates a tree like link structure, so called "Folgezettel" in the repo.
+// CreateFolgezettelStruct creates a tree like link structure, so called "Folgezettel" in the fs.
 // This represents the physical representation how Niklas Luhmann arranged his Zettel in his
 // wooden zettelkasten boxes. This is used for creating chains of thoughts.
 // Topic is e.g. "Evolution" and the map contains all links[linkname]targetId
