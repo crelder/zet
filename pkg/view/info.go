@@ -29,8 +29,8 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string
 		infos["unlinked"] = unlinked
 	}
 
-	unindexed := getUnindexed(zettel, index)
-	infos["unindexed"] = unindexed
+	//unindexed := getUnindexed(zettel, index)
+	//infos["unindexed"] = unindexed
 
 	infos["bibkeys"] = AddFrequency(bibkeys)
 
