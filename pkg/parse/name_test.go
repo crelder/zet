@@ -55,6 +55,8 @@ func TestParseFilename(t *testing.T) {
 		},
 
 		// A filename with a reference, but without a keyword
+		// Only two rules: 1. must have an id, 2. if you want to provide context,
+		// you also have to provide at least one keyword.
 		//{
 		//	"170712a - nick2016 - 190314a, 200112ver.png",
 		//	zet.Zettel{
@@ -68,19 +70,31 @@ func TestParseFilename(t *testing.T) {
 		//	"",
 		//},
 		//{
-		// "150302s - 140304t.txt",
-		// zet.Zettel{
-		//    Id:          "150302s",
-		//    Keywords:    nil,
-		//    Folgezettel: nil,
-		//    Predecessor: []string{"140304t"},
-		//    References:   nil,
-		//    context:     nil,
-		//    Name:        "",
-		// },
-		// "",
+		//	"150302s - 140304t.txt",
+		//	zet.Zettel{
+		//		Id:          "150302s",
+		//		Keywords:    nil,
+		//		Folgezettel: nil,
+		//		Predecessor: []string{"140304t"},
+		//		References:  nil,
+		//		Context:     nil,
+		//		Name:        "",
+		//	},
+		//	"",
 		//},
-
+		//{
+		//	"150302s - Some Context, bibkey2017 - 140304t.txt",
+		//	zet.Zettel{
+		//		Id:          "150302s",
+		//		Keywords:    []string{"Some Context"},
+		//		Folgezettel: nil,
+		//		Predecessor: []string{"140304t"},
+		//		References:  []zet.Reference{{"bibkey2017",""}},
+		//		Context:     nil,
+		//		Name:        "",
+		//	},
+		//	"",
+		//},
 	}
 	for _, tc := range tcs {
 		got, err := Filename(tc.filename)
