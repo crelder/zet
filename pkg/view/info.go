@@ -29,6 +29,9 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string
 		infos["unlinked"] = unlinked
 	}
 
+	// Debugg Strategy
+	// 1. Change Model to only one Predecessor posssible
+	// 2. Add logging around and inside unindexed
 	//unindexed := getUnindexed(zettel, index)
 	//infos["unindexed"] = unindexed
 
