@@ -95,6 +95,45 @@ func TestParseFilename(t *testing.T) {
 		//	},
 		//	"",
 		//},
+		//{
+		//	"150302s - Keyword1 - Context1 - Too Many Dashes - 140304t.txt",
+		//	zet.Zettel{
+		//		Id:          "",
+		//		Keywords:    nil,
+		//		Folgezettel: nil,
+		//		Predecessor: nil,
+		//		References:  nil,
+		//		Context:     nil,
+		//		Name:        "",
+		//	},
+		//	"Too many dashes",
+		//},
+		//{
+		//	"150302s - Keyword1 - Context1 - 140304t, Something else.txt",
+		//	zet.Zettel{
+		//		Id:          "",
+		//		Keywords:    nil,
+		//		Folgezettel: nil,
+		//		Predecessor: nil,
+		//		References:  nil,
+		//		Context:     nil,
+		//		Name:        "",
+		//	},
+		//	"Link section does not purely contain links",
+		//},
+		//{
+		//	"150302s - Some Context, bibkey2017 - 140304t.txt",
+		//	zet.Zettel{
+		//		Id:          "150302s",
+		//		Keywords:    []string{"Some Context"},
+		//		Folgezettel: nil,
+		//		Predecessor: []string{"140304t"},
+		//		References:  []zet.Reference{{"bibkey2017",""}},
+		//		Context:     nil,
+		//		Name:        "",
+		//	},
+		//	"",
+		//},
 	}
 	for _, tc := range tcs {
 		got, err := Filename(tc.filename)
