@@ -43,7 +43,7 @@ func createApp() (cli.App, error) {
 	parser := parse.New()
 	repo := fs.New(wd, parser)
 	viewer := view.New(repo, repo)
-	importer := imports.New(parser, repo)
+	importer := imports.New(parser, repo, repo)
 	validator := validate.New(repo)
 	initiator := initialize.New(wd)
 

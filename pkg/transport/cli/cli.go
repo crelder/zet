@@ -77,19 +77,13 @@ func (cli App) Start() error {
 			return fmt.Errorf("no path provided. Please provide a path to the folder, where the textfiles lie, which you want to import")
 		}
 
-		path := os.Args[2]
-		contents, err := getContentsFromPath(path)
-		if err != nil {
-			return err
-		}
-
-		n, err2 := cli.importer.Import(contents)
+		n, err2 := cli.importer.Import(os.Args[2])
 		if err2 != nil {
 			if n == 0 {
 				return fmt.Errorf("error importing: %v", err2)
 			}
 			if n > 0 {
-				return fmt.Errorf("only %v out of %v zettel got imported, because of error %q.\n\nPlease check manually which ones are still missing", n, len(contents), err)
+				return fmt.Errorf("only %v zettel got imported, because of error %q.\n\nPlease check manually which zettel are still missing", n, err2)
 			}
 		}
 		fmt.Printf("Imported %d zettel into your zettel folder", n)
@@ -131,21 +125,6 @@ All bibkeys have a corresponding reference.`)
 	}
 }
 
-func getContentsFromPath(path string) ([]string, error) {
-	var contents []string
-	filepaths, err := os.ReadDir(path)
-	if err != nil {
-		return nil, fmt.Errorf("cli: error %q reading path: %v", err, path)
-	}
-	filepaths = filterAllowed(filepaths)
-
-	for _, fp := range filepaths {
-		content, _ := os.ReadFile(path + "/" + fp.Name())
-		contents = append(contents, string(content))
-	}
-	return contents, nil
-}
-
 const usage = `Usage: zet <command> [<args>]
       
 These are common zet commands:
@@ -180,21 +159,4 @@ func isCalledFromZetDir() bool {
 		return false
 	}
 	return true
-}
-
-func filterAllowed(filepaths []os.DirEntry) []os.DirEntry {
-	var fps []os.DirEntry
-	for _, fp := range filepaths {
-		if isAllowed(fp.Name()) {
-			fps = append(fps, fp)
-		}
-	}
-	return fps
-}
-
-func isAllowed(fn string) bool {
-	if fn[len(fn)-3:] == "txt" {
-		return true
-	}
-	return false
 }

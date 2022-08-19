@@ -296,6 +296,23 @@ func (r Repo) CreateFolgezettelStruct(links map[string]string) error {
 	return nil
 }
 
+// GetContents reads the files in the path and extracts from allowed files the text content.
+func (r Repo) GetContents(path string) ([]string, error) {
+	var contents []string
+
+	filepaths, err := os.ReadDir(path)
+	if err != nil {
+		return nil, fmt.Errorf("repo GetContents: %v for path: %v", err, path)
+	}
+	filepaths = filterAllowed(filepaths)
+
+	for _, fp := range filepaths {
+		dat, _ := os.ReadFile(path + "/" + fp.Name())
+		contents = append(contents, string(dat))
+	}
+	return contents, nil
+}
+
 func exists(path string) bool {
 	f, err := os.Open(path)
 	defer f.Close()
@@ -303,6 +320,23 @@ func exists(path string) bool {
 		return false
 	}
 	return true
+}
+
+func filterAllowed(filepaths []os.DirEntry) []os.DirEntry {
+	var fps []os.DirEntry
+	for _, fp := range filepaths {
+		if isAllowed(fp.Name()) {
+			fps = append(fps, fp)
+		}
+	}
+	return fps
+}
+
+func isAllowed(fn string) bool {
+	if fn[len(fn)-3:] == "txt" {
+		return true
+	}
+	return false
 }
 
 // Save creates text files with a valid filename and the content.

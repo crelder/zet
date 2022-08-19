@@ -8,22 +8,37 @@ import (
 // Importer satisfies the zet.Importer interface.
 type Importer struct {
 	parser zet.Parser
+	reader Reader
 	repo   zet.Repo
 }
 
-func New(p zet.Parser, repo zet.Repo) Importer {
+func New(p zet.Parser, r Reader, repo zet.Repo) Importer {
 	return Importer{
 		parser: p,
+		reader: r,
 		repo:   repo}
 }
 
 // Import creates for every slice entry, a zettel content,
 // a valid filename with all the zettel's metadata and a unique id.
 //
+// GetContents takes a path to a folder with textfiles and returns their contents.
+type Reader interface {
+	GetContents(path string) ([]string, error)
+}
+
+// Import reads all the zettel contents from the parameter path.
+// For every zettel content, a valid filename is generated containing all the zettel's metadata and
+// a unique id.
+//
 // In case of success Import returns the number of zettel created and a nil error.
-// In case of an error Import returns the error and the number of zettel
-// that got persisted until the error occurrence.
-func (i Importer) Import(contents []string) (int, error) {
+// In case of an error Import returns 0 (no zettel are created) and the error.
+func (i Importer) Import(path string) (int, error) {
+	contents, err := i.reader.GetContents(path)
+	if err != nil {
+		return 0, err
+	}
+
 	zettel, err2 := i.repo.GetZettel()
 	if err2 != nil {
 		return 0, err2

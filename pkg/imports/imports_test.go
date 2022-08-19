@@ -1,7 +1,6 @@
 package imports
 
 import (
-	"fmt"
 	"github.com/crelder/zet/pkg/parse"
 	"github.com/crelder/zet/pkg/transport/fs"
 	"os"
@@ -17,7 +16,7 @@ func TestCreateImports(t *testing.T) {
 	var pathTestRepo = wd + "/testdata/zettelkasten"
 	p := parse.New()
 	repo := fs.New(pathTestRepo, p)
-	importer := New(p, repo)
+	importer := New(p, repo, repo)
 
 	// Rebuild a clean state of the zettel folder
 	err2 := os.RemoveAll(pathTestRepo + "/zettel")
@@ -42,15 +41,9 @@ Some thought...`
 
 	// Load new content that will get persisted in the zettel folder.
 	const impSourcePath = "./testdata/new_zettel_files"
-	contents, err5 := getContentsFromPath(impSourcePath)
-	if err5 != nil {
-		t.Errorf("error getting file content: %v", err5)
-	}
-
-	// Act
-	n, err := importer.Import(contents)
 
 	// Assert
+	n, err := importer.Import(impSourcePath)
 	if err != nil {
 		t.Errorf("error creating import: %v", err)
 	}
@@ -73,36 +66,4 @@ Some thought...`
 			t.Errorf("File was not created: %v", tc)
 		}
 	}
-}
-
-func getContentsFromPath(path string) ([]string, error) {
-	var contents []string
-	filepaths, err := os.ReadDir(path)
-	if err != nil {
-		return nil, fmt.Errorf("cli: error %q reading path: %v", err, path)
-	}
-	filepaths = filterAllowed(filepaths)
-
-	for _, fp := range filepaths {
-		dat, _ := os.ReadFile(path + "/" + fp.Name())
-		contents = append(contents, string(dat))
-	}
-	return contents, nil
-}
-
-func filterAllowed(filepaths []os.DirEntry) []os.DirEntry {
-	var fps []os.DirEntry
-	for _, fp := range filepaths {
-		if isAllowed(fp.Name()) {
-			fps = append(fps, fp)
-		}
-	}
-	return fps
-}
-
-func isAllowed(fn string) bool {
-	if fn[len(fn)-3:] == "txt" {
-		return true
-	}
-	return false
 }
