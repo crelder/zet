@@ -42,14 +42,14 @@ func TestParseFilename(t *testing.T) {
 		// A correct example with all possibilities to parse: id, keywords, context, literature, and predecessors.
 		// Should also work with no space between the comma and the keyword, e.g. 'Evolution,Lego bauen'.
 		{
-			"170712a - Evolution,Lego bauen, Perfektion - Gespräch Peter, nick2016, gutmann2000a 14f - 190314a, 200112ver.png",
+			"170712a - Evolution,Lego bauen, Perfektion - Gespräch Peter, nick2016, gutmann2000a 14f - 190314a.png",
 			zet.Zettel{
 				Id:          "170712a",
 				Keywords:    []string{"Evolution", "Lego bauen", "Perfektion"},
-				Predecessor: []string{"190314a", "200112ver"},
+				Predecessor: "190314a",
 				References:  []zet.Reference{{Bibkey: "nick2016", Location: ""}, {Bibkey: "gutmann2000a", Location: "14f"}},
 				Context:     []string{"Gespräch Peter"},
-				Name:        "170712a - Evolution,Lego bauen, Perfektion - Gespräch Peter, nick2016, gutmann2000a 14f - 190314a, 200112ver.png",
+				Name:        "170712a - Evolution,Lego bauen, Perfektion - Gespräch Peter, nick2016, gutmann2000a 14f - 190314a.png",
 			},
 			"",
 		},

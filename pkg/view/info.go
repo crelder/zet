@@ -87,14 +87,14 @@ func getRootAndMaxLength(zettel zet.Zettel, zettels []zet.Zettel, index zet.Inde
 		if _, ok := traveledIds[z.Id]; ok {
 			return "", 0 // Is it good to handle it like this?
 		}
-		if z.Predecessor == nil {
+		if z.Predecessor == "" {
 			if isInIndex(z.Id, index) {
 				return "", 0
 			}
 			return z.Id, count
 		}
 		travelled[z.Id] = true
-		z, err = getZettel(z.Predecessor[0], zettels) // TODO: Handle error!
+		z, err = getZettel(z.Predecessor, zettels) // TODO: Handle error!
 		if err != nil {
 			log.Fatalf("%v", err)
 		}

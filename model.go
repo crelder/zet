@@ -1,11 +1,11 @@
 package zet
 
-// Zettel holds one thought.
+// Zettel holds the metadata of one thought.
 type Zettel struct {
 	Id          string
 	Keywords    []string
 	Folgezettel []string
-	Predecessor []string // there is none or one predecessor maximum
+	Predecessor string
 	References  []Reference
 	Context     []string
 	Name        string // the filename, e.g. '170212g - Go.txt'

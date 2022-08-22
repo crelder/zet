@@ -143,10 +143,8 @@ func getMissingBibKeys(zettel []zet.Zettel, bibkeys []string) []string {
 func getDeadLinks(zettel []zet.Zettel) []string {
 	var deadLinks []string
 	for _, z := range zettel {
-		for _, pred := range z.Predecessor {
-			if !idExist(pred, zettel) {
-				deadLinks = append(deadLinks, pred)
-			}
+		if !idExist(z.Predecessor, zettel) {
+			deadLinks = append(deadLinks, z.Predecessor)
 		}
 	}
 	deadLinks = removeDuplicates(deadLinks)

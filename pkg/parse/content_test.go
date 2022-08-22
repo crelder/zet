@@ -19,8 +19,12 @@ func TestContent(t *testing.T) {
 		// This shows the full parsing potential.
 		// It should also parse the context and folgezettel, if no ' - ' is provided to separate.
 		// It should also handle additional whitespaces between the contexts.
-		{"Risiko, Unsicherheit\n170312\n Paul Ehrlich,  181201f, kahn1985 12,  Movie Dunkirk, 200812c, greyer1987",
-			"170312r - Risiko, Unsicherheit - Paul Ehrlich, Movie Dunkirk, kahn1985 12, greyer1987 - 181201f, 200812c.txt", ""},
+		{"Risiko, Unsicherheit\n170312\n Paul Ehrlich,  181201f, kahn1985 12,  Movie Dunkirk, greyer1987",
+			"170312r - Risiko, Unsicherheit - Paul Ehrlich, Movie Dunkirk, kahn1985 12, greyer1987 - 181201f.txt", ""},
+
+		// In case of two predecessor ids, only the first one is added to Zettel.Predecessor
+		//{"Risiko, Unsicherheit\n170312\n Paul Ehrlich,  181201f, kahn1985 12,  Movie Dunkirk, 200812c, greyer1987",
+		//	"170312r - Risiko, Unsicherheit - Paul Ehrlich, Movie Dunkirk, kahn1985 12, greyer1987 - 181201f, 200812c.txt", ""},
 
 		// This header only consists of keywords (first line) and a date (second line).
 		// The third line with context information (bibkeys, context) is optional - and here not present.

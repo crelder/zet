@@ -99,9 +99,7 @@ func addFolgezettel(zettels []zet.Zettel) ([]zet.Zettel, error) {
 func getFolgezettelIds(zettels []zet.Zettel) map[string][]string {
 	zetMap := make(map[string][]string)
 	for _, zettel := range zettels {
-		for _, predecessor := range zettel.Predecessor { // Normally this should be just one, but just in case...
-			zetMap[predecessor] = append(zetMap[predecessor], zettel.Id)
-		}
+		zetMap[zettel.Predecessor] = append(zetMap[zettel.Predecessor], zettel.Id)
 	}
 	return zetMap
 }

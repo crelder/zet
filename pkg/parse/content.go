@@ -38,7 +38,7 @@ func toZettel(content string, zettel []zet.Zettel) (zet.Zettel, error) {
 	z.Keywords = parseKeywordsFromHeader(header.keywords)
 
 	con := parseContext(header.contexts)
-	z.Folgezettel = con.Folgezettel
+	z.Predecessor = con.Predecessor
 	z.References = con.References
 	z.Context = con.Context
 

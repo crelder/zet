@@ -26,7 +26,7 @@ func Filename(filename string) (zet.Zettel, error) {
 		Id:          id,
 		Keywords:    parseKeywords(filename),
 		Folgezettel: nil,
-		Predecessor: context.Folgezettel,
+		Predecessor: context.Predecessor,
 		References:  context.References,
 		Context:     context.Context,
 		Name:        filename,
@@ -188,8 +188,8 @@ func parseContext(header string) context {
 
 	var con context
 	for _, spl := range cleanedHeader {
-		if isFolgezettel(spl) {
-			con.Folgezettel = append(con.Folgezettel, spl)
+		if isId(spl) {
+			con.Predecessor = spl
 			continue
 		}
 		if isLink(spl) {
@@ -218,7 +218,7 @@ func clean(s []string) []string {
 	return clean
 }
 
-func isFolgezettel(s string) bool {
+func isId(s string) bool {
 	r, _ := regexp.Compile("^\\d{6}[a-z]{1,3}$")
 	return r.Match([]byte(s))
 }
@@ -242,7 +242,7 @@ func getRef(spl string) zet.Reference {
 }
 
 type context struct {
-	Folgezettel []string
+	Predecessor string
 	Links       []string
 	References  []zet.Reference
 	Context     []string
