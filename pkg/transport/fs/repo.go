@@ -236,7 +236,7 @@ func persist(oldname, newname string) error {
 		return err
 	}
 
-	err2 := os.Symlink(oldname, newname)
+	err2 := os.Link(oldname, newname)
 	if err2 != nil {
 		return fmt.Errorf("fs: could not create symlink: %v\n", err2)
 	}
