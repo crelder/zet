@@ -2,7 +2,7 @@ package view
 
 import (
 	"github.com/crelder/zet/pkg/parse"
-	"github.com/crelder/zet/pkg/transport/repo"
+	"github.com/crelder/zet/pkg/transport/fs"
 	"github.com/google/go-cmp/cmp"
 	"os"
 	"path"
@@ -17,8 +17,8 @@ func TestCreateIndexViews(t *testing.T) {
 	}
 	var pathTestRepo = wd + "/testdata/zettelkasten"
 	parser := parse.New()
-	r := repo.New(pathTestRepo, parser)
-	viewer := New(r, r)
+	repo := fs.New(pathTestRepo, parser)
+	viewer := New(repo, repo)
 
 	// Remove this directory, which might got created in a previous test
 	viewPath := pathTestRepo + "/INDEX"
@@ -65,7 +65,7 @@ func TestCreateInfo(t *testing.T) {
 	}
 	var pathTestRepo = wd + "/testdata/zettelkasten2"
 	parser := parse.New()
-	r := repo.New(pathTestRepo, parser)
+	r := fs.New(pathTestRepo, parser)
 	viewer := New(r, r)
 
 	// Remove this directory, which might got created in a previous test
@@ -123,7 +123,7 @@ func TestUnindexed(t *testing.T) {
 	}
 	var pathTestRepo = wd + "/testdata/zettelkasten3"
 	parser := parse.New()
-	r := repo.New(pathTestRepo, parser)
+	r := fs.New(pathTestRepo, parser)
 	viewer := New(r, r)
 
 	// Remove this directory, which might got created in a previous test

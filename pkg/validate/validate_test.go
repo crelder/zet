@@ -2,7 +2,7 @@ package validate
 
 import (
 	"github.com/crelder/zet/pkg/parse"
-	"github.com/crelder/zet/pkg/transport/repo"
+	"github.com/crelder/zet/pkg/transport/fs"
 	"github.com/google/go-cmp/cmp"
 	"os"
 	"testing"
@@ -16,8 +16,8 @@ func TestValidate(t *testing.T) {
 	}
 	var pathTestRepo = wd + "/testdata/zettelkasten"
 	parser := parse.New()
-	r := repo.New(pathTestRepo, parser)
-	validator := New(r)
+	repo := fs.New(pathTestRepo, parser)
+	validator := New(repo)
 
 	// Act
 	inconsErrs, err2 := validator.Val()
@@ -52,7 +52,7 @@ func TestValidateParsingIdError(t *testing.T) {
 	}
 	var pathTestRepo = wd + "/testdata/zettelkasten2"
 	parser := parse.New()
-	r := repo.New(pathTestRepo, parser)
+	r := fs.New(pathTestRepo, parser)
 	validator := New(r)
 
 	// Act
@@ -76,7 +76,7 @@ func TestValidateParsingIndexError(t *testing.T) {
 	}
 	var pathTestRepo = wd + "/testdata/zettelkasten3"
 	parser := parse.New()
-	r := repo.New(pathTestRepo, parser)
+	r := fs.New(pathTestRepo, parser)
 	validator := New(r)
 
 	// Act

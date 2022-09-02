@@ -1,4 +1,4 @@
-package repo
+package fs
 
 import (
 	"errors"
@@ -116,7 +116,7 @@ func (r Repo) getFiles() ([]zettelFile, error) {
 	var zettelPath = r.path + "/zettel"
 	dirEntries, err := os.ReadDir(zettelPath)
 	if err != nil {
-		return nil, fmt.Errorf("repo: %v", err)
+		return nil, fmt.Errorf("fs: %v", err)
 	}
 	var zettelFiles []zettelFile
 	var z zet.Zettel
@@ -158,7 +158,7 @@ func (r Repo) GetIndex() (zet.Index, error) {
 	var index map[string][]string
 	f, err := os.ReadFile(r.path + "/index.txt")
 	if err != nil {
-		return nil, fmt.Errorf("repo: %v", err)
+		return nil, fmt.Errorf("fs: %v", err)
 	}
 
 	index, parseErr := r.parser.Index(string(f))
@@ -172,7 +172,7 @@ func (r Repo) GetIndex() (zet.Index, error) {
 func (r Repo) GetBibkeys() ([]string, error) {
 	f, err := os.ReadFile(r.path + "/references.bib")
 	if err != nil {
-		return nil, fmt.Errorf("repo: %v", err)
+		return nil, fmt.Errorf("fs: %v", err)
 	}
 
 	return r.parser.Reference(string(f)), nil
@@ -219,13 +219,13 @@ func (r Repo) getFilePath(id string) (string, error) {
 func existsOrMake(dir string) error {
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
-		return fmt.Errorf("repo: %v", err)
+		return fmt.Errorf("fs: %v", err)
 	}
 
 	return nil
 }
 
-// CreateFolgezettelStruct creates a tree like link structure, so called "Folgezettel" in the repo.
+// CreateFolgezettelStruct creates a tree like link structure, so called "Folgezettel" in the fs.
 // This represents the physical representation how Niklas Luhmann arranged his Zettel in his
 // wooden zettelkasten boxes. This is used for creating chains of thoughts.
 // Topic is e.g. "Evolution" and the map contains all links[linkname]targetId
@@ -253,6 +253,23 @@ func (r Repo) PersistIndex(links map[string]string) error {
 	return nil
 }
 
+// GetContents reads the files in the path and extracts from allowed files the text content.
+func (r Repo) GetContents(path string) ([]string, error) {
+	var contents []string
+
+	filepaths, err := os.ReadDir(path)
+	if err != nil {
+		return nil, fmt.Errorf("repo GetContents: %v for path: %v", err, path)
+	}
+	filepaths = filterAllowed(filepaths)
+
+	for _, fp := range filepaths {
+		dat, _ := os.ReadFile(path + "/" + fp.Name())
+		contents = append(contents, string(dat))
+	}
+	return contents, nil
+}
+
 func exists(path string) bool {
 	f, err := os.Open(path)
 	defer f.Close()
@@ -260,6 +277,23 @@ func exists(path string) bool {
 		return false
 	}
 	return true
+}
+
+func filterAllowed(filepaths []os.DirEntry) []os.DirEntry {
+	var fps []os.DirEntry
+	for _, fp := range filepaths {
+		if isAllowed(fp.Name()) {
+			fps = append(fps, fp)
+		}
+	}
+	return fps
+}
+
+func isAllowed(fn string) bool {
+	if fn[len(fn)-3:] == "txt" {
+		return true
+	}
+	return false
 }
 
 // Save creates text files with a valid filename and the content.

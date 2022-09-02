@@ -15,7 +15,7 @@ package zet
 // Import takes one or more zettel contents and persists each content.
 // In case of an error it returns the number of zettel contents already persisted until the occurrence of the error.
 type Importer interface {
-	Import(zettelContents []string) (int, error)
+	Import(path string) (int, error)
 }
 
 // Initiator supports starting with this personal knowledge management system.

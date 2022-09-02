@@ -3,6 +3,8 @@
 The following project proposes a personal knowledge management system that is robust, simple, and built to last a
 lifetime.
 
+Inspiration is Vim (about 50 years of development by basically one person), Git (Immutable Architecture, simple interface), Zettelkasten by Niklas Luhmann
+
 ## Motivation
 
 We live in a knowledge-based society (German: "Wissensgesellschaft"). There are projects like Wikipedia, where
