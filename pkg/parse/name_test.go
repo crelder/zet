@@ -25,6 +25,9 @@ func TestParseFilename(t *testing.T) {
 		// There is no id at all in the filename.
 		{"Evolution, Lego bauen", zet.Zettel{}, "parse Filename: could not parse id from filename \"Evolution, Lego bauen\""},
 
+		// More than four parts separated by dashes are too many.
+		{"180228f - Design - Vince, baber2011 - something else - 190122a ", zet.Zettel{}, "parse Filename: could not parse id from filename \"Evolution, Lego bauen\""},
+
 		// The minimal structure of a zettel, hence a filename with only an id.
 		{"200110d.txt", zet.Zettel{Id: "200110d", Name: "200110d.txt"}, ""},
 

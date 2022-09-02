@@ -14,10 +14,12 @@ func Content(content string, zettel []zet.Zettel) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	fn, err := toFilename(z)
 	if err != nil {
 		return "", err
 	}
+
 	return fn, nil
 }
 
@@ -37,7 +39,10 @@ func toZettel(content string, zettel []zet.Zettel) (zet.Zettel, error) {
 
 	z.Keywords = parseKeywordsFromHeader(header.keywords)
 
-	con := parseContext(header.contexts)
+	con, err := parseContext(header.contexts)
+	if err != nil {
+		return zet.Zettel{}, err
+	}
 	z.Predecessor = con.Predecessor
 	z.References = con.References
 	z.Context = con.Context

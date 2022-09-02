@@ -32,8 +32,8 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string
 	// Debugg Strategy
 	// 1. Change Model to only one Predecessor posssible
 	// 2. Add logging around and inside unindexed
-	//unindexed := getUnindexed(zettel, index)
-	//infos["unindexed"] = unindexed
+	unindexed := getUnindexed(zettel, index)
+	infos["unindexed"] = unindexed
 
 	infos["bibkeys"] = AddFrequency(bibkeys)
 
@@ -101,28 +101,6 @@ func getRootAndMaxLength(zettel zet.Zettel, zettels []zet.Zettel, index zet.Inde
 		count += 1
 	}
 }
-
-//func getRootIdAndMaxDepth(zettel zet.Zettel, zettels []zet.Zettel) (string, int) {
-//	m := make(map[string]zet.Zettel)
-//	for _, z := range zettels {
-//		m[z.Id] = z
-//	}
-//
-//	currentZettel := zettel
-//	count := 1
-//	for {
-//		if len(currentZettel.Predecessor) == 0 {
-//			break
-//		}
-//		zt, ok := m[currentZettel.Predecessor[0]]
-//		if !ok {
-//			break
-//		}
-//		currentZettel = zt
-//		count += 1
-//	}
-//	return currentZettel.Id, count
-//}
 
 func getIds(zettels []zet.Zettel) []string {
 	var ids []string

@@ -22,9 +22,9 @@ func TestContent(t *testing.T) {
 		{"Risiko, Unsicherheit\n170312\n Paul Ehrlich,  181201f, kahn1985 12,  Movie Dunkirk, greyer1987",
 			"170312r - Risiko, Unsicherheit - Paul Ehrlich, Movie Dunkirk, kahn1985 12, greyer1987 - 181201f.txt", ""},
 
-		// In case of two predecessor ids, only the first one is added to Zettel.Predecessor
-		//{"Risiko, Unsicherheit\n170312\n Paul Ehrlich,  181201f, kahn1985 12,  Movie Dunkirk, 200812c, greyer1987",
-		//	"170312r - Risiko, Unsicherheit - Paul Ehrlich, Movie Dunkirk, kahn1985 12, greyer1987 - 181201f, 200812c.txt", ""},
+		// In case of two or more predecessor ids, an error is returned.
+		{"Unsicherheit\n190312\n Paul Ehrlich,  181201f, kahn1985 12,  Movie Dunkirk, 200812c, greyer1987",
+			"", "more then one predecessor in line:  Paul Ehrlich,  181201f, kahn1985 12,  Movie Dunkirk, 200812c, greyer1987"},
 
 		// This header only consists of keywords (first line) and a date (second line).
 		// The third line with context information (bibkeys, context) is optional - and here not present.

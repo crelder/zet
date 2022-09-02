@@ -17,20 +17,20 @@ func Filename(filename string) (zet.Zettel, error) {
 	if filename == "" {
 		return zet.Zettel{}, errors.New("parse Filename: could not parse empty filename string")
 	}
-	context := parseContextFromFilename(filename)
 	id := parseId(filename)
 	if id == "" {
 		return zet.Zettel{}, fmt.Errorf("parse Filename: could not parse id from filename %q", filename)
 	}
+	context, incon := parseContextFromFilename(filename)
 	return zet.Zettel{
 		Id:          id,
 		Keywords:    parseKeywords(filename),
-		Folgezettel: nil,
+		Folgezettel: nil, // Folgezettel wegmachen und nur bei der Indexgenerierung hinzu, dann in ein zweites embedded struct packen?
 		Predecessor: context.Predecessor,
 		References:  context.References,
 		Context:     context.Context,
 		Name:        filename,
-	}, nil
+	}, incon
 }
 
 func toFilename(z zet.Zettel) (string, error) {
@@ -71,9 +71,9 @@ func toFilename(z zet.Zettel) (string, error) {
 		}
 	}
 
-	if len(z.Folgezettel) > 0 {
+	if len(z.Predecessor) > 0 {
 		fn += " - "
-		fn += strings.Join(z.Folgezettel, ", ")
+		fn += z.Predecessor
 	}
 
 	fn += fileExt
@@ -114,17 +114,65 @@ func parseKeywords(filename string) []string {
 	return keywords
 }
 
-func parseContextFromFilename(fn string) context {
-	start := strings.Index(fn, " - ")
-	relevantString := fn[start+3 : len(fn)-4]
-	pos := strings.Index(relevantString, " - ")
-	if pos == -1 {
-		return context{}
+func parseContextFromFilename(fn string) (context, error) {
+	if fn == "" {
+		return context{}, nil
 	}
-	relevantString = relevantString[pos+3:]
-	split := strings.Split(relevantString, " - ")
-	s := strings.Join(split, ",")
-	return parseContext(s)
+	parts := strings.Split(fn, " - ")
+	if len(parts) == 1 {
+		// The filename only consists of an id.
+		return context{}, nil
+	}
+	if len(parts) == 2 {
+		if isId(parts[1]) {
+			// The filename consists of an id and a predecessor id.
+			return context{
+				Predecessor: parts[1],
+				References:  nil,
+				Context:     nil,
+			}, nil
+
+		}
+		// The filename consists of an id and keywords.
+		return context{
+			Predecessor: "",
+			References:  nil,
+			Context:     nil,
+		}, nil
+	}
+	if len(parts) == 3 {
+		if isId(parts[2]) {
+			// We don't have context, only id - keywords - predecessor
+			return context{
+				Predecessor: parts[2],
+				References:  nil,
+				Context:     nil,
+			}, nil
+		}
+		// We have id - keywords - context
+		c, parseErr := parseContext2(parts[2])
+		return context{
+			Predecessor: "",
+			References:  c.References,
+			Context:     c.Context,
+		}, parseErr
+
+	}
+	if len(parts) == 4 {
+		// All parts are filled
+		var p string
+		if isId(parts[3]) {
+			p = parts[3]
+		}
+		c, parseErr := parseContext2(parts[2])
+		return context{
+			Predecessor: p,
+			References:  c.References,
+			Context:     c.Context,
+		}, parseErr
+
+	}
+	return context{}, fmt.Errorf("parse name: there shouldn't be more than four parts in a filename")
 }
 
 type header struct {
@@ -136,20 +184,20 @@ type header struct {
 func getHeader(s string) header {
 	var header header
 	lines := bytes.Split([]byte(s), []byte("\n"))
-	if len(lines) >= 3 {
-		header.keywords = string(lines[0])
-		header.date = string(lines[1])
-		header.contexts = string(lines[2])
-		return header
-	}
-	if len(lines) == 2 {
-		header.keywords = string(lines[0])
-		header.date = string(lines[1])
-		return header
-	}
-	if len(lines) == 1 && s != "" {
-		header.keywords = string(lines[0])
-		return header
+	for i, _ := range lines {
+		if i == 0 {
+			header.keywords = string(lines[0])
+			continue
+		}
+		if i == 1 {
+			header.date = string(lines[1])
+			continue
+		}
+		if i == 2 {
+			header.contexts = string(lines[2])
+			continue
+		}
+		break
 	}
 	return header
 }
@@ -180,33 +228,51 @@ func parseDate(header string) (time.Time, error) {
 	return time.Time{}, errors.New("parseDate: could not parse date")
 }
 
-func parseContext(header string) context {
-	if header == "" {
-		return context{}
+func parseContext(line string) (context, error) {
+	if line == "" {
+		return context{}, nil
 	}
-	cleanedHeader := clean(strings.Split(header, ","))
+	cleanedLine := clean(strings.Split(line, ","))
 
 	var con context
-	for _, spl := range cleanedHeader {
-		if isId(spl) {
-			con.Predecessor = spl
+	for _, elem := range cleanedLine {
+		if isId(elem) {
+			if con.Predecessor != "" {
+				return context{}, fmt.Errorf("more then one predecessor in line: %v", line)
+			}
+			con.Predecessor = elem
 			continue
 		}
-		if isLink(spl) {
-			con.Links = append(con.Links, spl)
+		if r := getRef(elem); r.Bibkey != "" {
+			con.References = append(con.References, r)
 			continue
 		}
-		if l := getRef(spl); l.Bibkey != "" {
-			con.References = append(con.References, l)
-			continue
-		}
-
-		if header != "" {
-			con.Context = append(con.Context, spl)
+		if line != "" {
+			con.Context = append(con.Context, elem)
 		}
 	}
 
-	return con
+	return con, nil
+}
+
+func parseContext2(filename string) (context, error) {
+	if filename == "" {
+		return context{}, nil
+	}
+	cleanedLine := clean(strings.Split(filename, ","))
+
+	var con context
+	for _, ch := range cleanedLine {
+		if r := getRef(ch); r.Bibkey != "" {
+			con.References = append(con.References, r)
+			continue
+		}
+		if filename != "" {
+			con.Context = append(con.Context, ch)
+		}
+	}
+
+	return con, nil
 }
 
 // clean removes unnecessary whitespaces.
@@ -220,11 +286,6 @@ func clean(s []string) []string {
 
 func isId(s string) bool {
 	r, _ := regexp.Compile("^\\d{6}[a-z]{1,3}$")
-	return r.Match([]byte(s))
-}
-
-func isLink(s string) bool {
-	r, _ := regexp.Compile("^@\\d{6}[a-z]{1,3}$")
 	return r.Match([]byte(s))
 }
 
@@ -243,7 +304,6 @@ func getRef(spl string) zet.Reference {
 
 type context struct {
 	Predecessor string
-	Links       []string
 	References  []zet.Reference
 	Context     []string
 }
