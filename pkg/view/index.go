@@ -20,9 +20,9 @@ func getFolgezettelMap(zettel []zet.Zettel, index zet.Index) (map[string]string,
 		}
 	}
 	result2 := make(map[string]string)
-	for path, id := range result {
+	for p, id := range result {
 		const indexFolder = "INDEX/"
-		result2[indexFolder+path] = id
+		result2[indexFolder+p] = id
 	}
 	return result2, nil
 }
@@ -59,7 +59,7 @@ func addSymlink(id string, symlinks map[string]string, counter int, path string,
 	if z.Id == "" {
 		return symlinks
 	}
-	newName := path + "/" + fmt.Sprintf("%02d", counter) + "_" + z.Name
+	newName := path + "/" + fmt.Sprintf("%03d", counter) + " " + z.Name
 	symlinks[newName] = z.Id
 	counter++
 	if len(z.Folgezettel) == 1 {
@@ -70,9 +70,9 @@ func addSymlink(id string, symlinks map[string]string, counter int, path string,
 		for _, fz := range z.Folgezettel[1:] {
 			var newPath string
 			if path == "" { // This can be done in another function
-				newPath = fmt.Sprintf("%02d", counter) + "_" + fz
+				newPath = fmt.Sprintf("%03d", counter) + " " + fz
 			} else {
-				newPath = path + "/" + fmt.Sprintf("%02d", counter) + "_" + fz
+				newPath = path + "/" + fmt.Sprintf("%03d", counter) + " " + fz
 			}
 			symlinks = addSymlink(fz, symlinks, 0, newPath, zettels)
 			counter++
