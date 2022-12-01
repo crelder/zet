@@ -172,7 +172,7 @@ func parseContextFromFilename(fn string) (context, error) {
 		}, parseErr
 
 	}
-	return context{}, fmt.Errorf("parse name: there shouldn't be more than four parts in a filename")
+	return context{}, fmt.Errorf("parse name: there shouldn't be more than four parts in a filename: %q", fn)
 }
 
 type header struct {
@@ -184,7 +184,7 @@ type header struct {
 func getHeader(s string) header {
 	var header header
 	lines := bytes.Split([]byte(s), []byte("\n"))
-	for i, _ := range lines {
+	for i := range lines {
 		if i == 0 {
 			header.keywords = string(lines[0])
 			continue

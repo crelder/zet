@@ -34,6 +34,8 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string
 	// 2. Add logging around and inside unindexed
 	unindexed := getUnindexed(zettel, index)
 	infos["unindexed"] = unindexed
+	log.Println("======")
+	log.Println(unindexed)
 
 	infos["bibkeys"] = AddFrequency(bibkeys)
 
@@ -48,6 +50,8 @@ func getUnindexed(zettels []zet.Zettel, index zet.Index) []string {
 	var maxDepth int
 	for _, zettel := range zettels {
 		id, depth := getRootAndMaxLength(zettel, zettels, index)
+		log.Println(zettel.Id, id, depth)
+		log.Println("======")
 		if isIrrelevant(id, depth) { // TODO: Rework interface, so that no "" ids are returned.
 			continue
 		}
@@ -87,7 +91,7 @@ func getRootAndMaxLength(zettel zet.Zettel, zettels []zet.Zettel, index zet.Inde
 		if _, ok := traveledIds[z.Id]; ok {
 			return "", 0 // Is it good to handle it like this?
 		}
-		if z.Predecessor == "" {
+		if z.Predecessor == "" { // No Predecessor
 			if isInIndex(z.Id, index) {
 				return "", 0
 			}

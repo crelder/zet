@@ -73,6 +73,7 @@ func (v Viewer) CreateViews() error {
 }
 
 func getZettel(id string, zettel []zet.Zettel) (zet.Zettel, error) {
+	// TODO: Make map out of it?
 	for _, z := range zettel {
 		if z.Id == id {
 			return z, nil
