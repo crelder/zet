@@ -29,38 +29,46 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string
 		infos["unlinked"] = unlinked
 	}
 
-	// Debugg Strategy
-	// 1. Change Model to only one Predecessor posssible
-	// 2. Add logging around and inside unindexed
-	unindexed := getUnindexed(zettel, index)
-	infos["unindexed"] = unindexed
-	log.Println("======")
-	log.Println(unindexed)
+	pathDepths := convertToStringSlice(getPathDepths(zettel))
+	if pathDepths != nil {
+		infos["pathDepths"] = pathDepths
+	}
+
+	unindexed := convertToStringSlice(getUnindexedIds(getPathDepths(zettel), index))
+	if unindexed != nil {
+		infos["unindexed"] = unindexed
+	}
 
 	infos["bibkeys"] = AddFrequency(bibkeys)
 
 	return infos
 }
 
-// getUnindexed returns a list of ids, that are not in the index.
-// The method returns for every id the number of follow up zettel it has (Folgezettel), e.g. 190315d;6.
-// This means that zettel with id 190315d has 6 Folgezettel.
-func getUnindexed(zettels []zet.Zettel, index zet.Index) []string {
-	unindexedIds := make(map[string]int)
+func getPathDepths(zettels []zet.Zettel) map[string]int {
+	pathDepths := make(map[string]int)
 	var maxDepth int
 	for _, zettel := range zettels {
-		id, depth := getRootAndMaxLength(zettel, zettels, index)
-		log.Println(zettel.Id, id, depth)
-		log.Println("======")
-		if isIrrelevant(id, depth) { // TODO: Rework interface, so that no "" ids are returned.
-			continue
-		}
+		rootId, depth := getRootAndPathDepth(zettel, zettels)
 		if depth > maxDepth {
-			unindexedIds[id] = depth
+			pathDepths[rootId] = depth
 			continue
 		}
 	}
-	return convertToStringSlice(unindexedIds)
+	return pathDepths
+}
+
+// getUnindexedIds returns a list of ids, that are not in the index.
+// The method returns for every id the number of follow up zettel it has (Folgezettel), e.g. 190315d;6.
+// This means that zettel with id 190315d has 6 Folgezettel.
+func getUnindexedIds(pathDepths map[string]int, index zet.Index) map[string]int {
+	unindexedIds := make(map[string]int)
+	for id, depth := range pathDepths {
+		if isInIndex(id, index) {
+			continue
+		}
+		unindexedIds[id] = depth
+	}
+	return unindexedIds
 }
 
 func isIrrelevant(id string, depth int) bool {
@@ -79,7 +87,7 @@ func convertToStringSlice(unindexedIds map[string]int) []string {
 	return results
 }
 
-func getRootAndMaxLength(zettel zet.Zettel, zettels []zet.Zettel, index zet.Index) (string, int) {
+func getRootAndPathDepth(zettel zet.Zettel, zettels []zet.Zettel) (string, int) {
 	var (
 		z         = zettel
 		travelled = make(map[string]bool)
@@ -92,12 +100,9 @@ func getRootAndMaxLength(zettel zet.Zettel, zettels []zet.Zettel, index zet.Inde
 			return "", 0 // Is it good to handle it like this?
 		}
 		if z.Predecessor == "" { // No Predecessor
-			if isInIndex(z.Id, index) {
-				return "", 0
-			}
 			return z.Id, count
 		}
-		travelled[z.Id] = true
+		travelled[z.Id] = true                     // Workaround if there are circles in the graph
 		z, err = getZettel(z.Predecessor, zettels) // TODO: Handle error!
 		if err != nil {
 			log.Fatalf("%v", err)

@@ -26,18 +26,18 @@ func TestParseFilename(t *testing.T) {
 		{"Evolution, Lego bauen", zet.Zettel{}, "parse Filename: could not parse id from filename \"Evolution, Lego bauen\""},
 
 		// More than four parts separated by dashes are too many.
-		{"180228f - Design - Vince, baber2011 - something else - 190122a ", zet.Zettel{}, "parse Filename: could not parse id from filename \"Evolution, Lego bauen\""},
+		{"180228f - Design - Vince, baber2011 - something else - 190122a", zet.Zettel{}, "parse Filename: a filename should not have more than three separating dashes (' - '). Filename: \"180228f - Design - Vince, baber2011 - something else - 190122a\""},
 
 		// The minimal structure of a zettel, hence a filename with only an id.
 		{"200110d.txt", zet.Zettel{Id: "200110d", Name: "200110d.txt"}, ""},
 
 		// A correct, simple example o fa filename containing only the id and keywords.
 		{
-			"170712a - Evolution, Lego bauen, Perfektion.txt",
+			"170713a - Evolution, Lego bauen, Perfektion.txt",
 			zet.Zettel{
-				Id:       "170712a",
+				Id:       "170713a",
 				Keywords: []string{"Evolution", "Lego bauen", "Perfektion"},
-				Name:     "170712a - Evolution, Lego bauen, Perfektion.txt",
+				Name:     "170713a - Evolution, Lego bauen, Perfektion.txt",
 			},
 			"",
 		},
