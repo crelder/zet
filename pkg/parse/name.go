@@ -21,6 +21,9 @@ func Filename(filename string) (zet.Zettel, error) {
 	if id == "" {
 		return zet.Zettel{}, fmt.Errorf("parse Filename: could not parse id from filename %q", filename)
 	}
+	if strings.Count(filename, " - ") > 3 {
+		return zet.Zettel{}, fmt.Errorf("parse Filename: a filename should not have more than three separating dashes (' - '). Filename: %q", filename)
+	}
 	context, incon := parseContextFromFilename(filename)
 	return zet.Zettel{
 		Id:          id,
