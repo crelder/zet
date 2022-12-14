@@ -121,6 +121,9 @@ func parseContextFromFilename(fn string) (context, error) {
 	if fn == "" {
 		return context{}, nil
 	}
+	// Remove filetype at the end of a filename
+	index := strings.LastIndex(fn, ".")
+	fn = fn[:index]
 	parts := strings.Split(fn, " - ")
 	if len(parts) == 1 {
 		// The filename only consists of an id.
