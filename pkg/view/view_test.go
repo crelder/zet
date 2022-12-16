@@ -33,19 +33,19 @@ func TestCreateIndexViews(t *testing.T) {
 	testcases := []string{
 		// Chain of thoughts branch of. The oldest branch is linear in the same folder.
 		// All other branches create a new folder with their subbranch.
-		"INDEX/Komplexität/190119e/00_190119e - Komplexität.txt",
-		"INDEX/Komplexität/190119e/01_190119d - Testing - clausen2021 87 - 190119e.txt",
-		"INDEX/Komplexität/190119e/02_180522a/00_180522a - Komplexität, Thermodynamische Tiefe - 190119d.png",
-		"INDEX/Komplexität/190119e/02_180522a/01_220116s/00_220116s - Spezifikation - Marco Fitz - 180522a.pdf",
-		"INDEX/Komplexität/190119e/02_180522a/02_210520var - Varietät, Komplexität - 180522a.txt",
-		"INDEX/Komplexität/190119e/03_170224a - Polymorphismus, Objektorientierte Programmierung, Schnittstelle - 190119d.png",
-		"INDEX/Komplexität/190119e/04_190412d - Presentation, Domain Driven Design, Programmierung - 170224a.txt",
+		"INDEX/Komplexität/190119e/000 190119e - Komplexität.txt",
+		"INDEX/Komplexität/190119e/001 190119d - Testing - clausen2021 87 - 190119e.txt",
+		"INDEX/Komplexität/190119e/002 180522a/000 180522a - Komplexität, Thermodynamische Tiefe - 190119d.png",
+		"INDEX/Komplexität/190119e/002 180522a/001 220116s/000 220116s - Spezifikation - Marco Fitz - 180522a.pdf",
+		"INDEX/Komplexität/190119e/002 180522a/002 210520var - Varietät, Komplexität - 180522a.txt",
+		"INDEX/Komplexität/190119e/003 170224a - Polymorphismus, Objektorientierte Programmierung, Schnittstelle - 190119d.png",
+		"INDEX/Komplexität/190119e/004 190412d - Presentation, Domain Driven Design, Programmierung - 170224a.txt",
 
 		// An index topic can define more than one entry point into the zettelkasten.
-		"INDEX/Komplexität/220122a/00_220122a - Some keyword.txt",
+		"INDEX/Komplexität/220122a/000 220122a - Some keyword.txt",
 
 		// Every index entry creates a new folder.
-		"INDEX/Programmieren, Objektorientiert/210328obj/00_210328obj - Objektorientiert, Programmierung - kernighan2016 155.pdf",
+		"INDEX/Programmieren, Objektorientiert/210328obj/000 210328obj - Objektorientiert, Programmierung - kernighan2016 155.pdf",
 	}
 
 	for _, tc := range testcases {
