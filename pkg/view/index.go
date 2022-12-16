@@ -71,9 +71,9 @@ func addLink(id string, links map[string]string, counter int, path string, zette
 		for _, fz := range z.Folgezettel[1:] {
 			var newPath string
 			if path == "" { // This can be done in another function
-				newPath = fmt.Sprintf("%02d", counter) + "_" + fz
+				newPath = fmt.Sprintf("%03d", counter) + " " + fz
 			} else {
-				newPath = path + "/" + fmt.Sprintf("%02d", counter) + "_" + fz
+				newPath = path + "/" + fmt.Sprintf("%03d", counter) + " " + fz
 			}
 			links = addLink(fz, links, 0, newPath, zettels)
 			counter++
