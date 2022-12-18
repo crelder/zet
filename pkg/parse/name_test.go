@@ -28,6 +28,9 @@ func TestParseFilename(t *testing.T) {
 		// More than four parts separated by dashes are too many.
 		{"180228f - Design - Vince, baber2011 - something else - 190122a", zet.Zettel{}, "parse Filename: a filename should not have more than three separating dashes (' - '). Filename: \"180228f - Design - Vince, baber2011 - something else - 190122a\""},
 
+		// More than one predecessor. Only one allowed.
+		{"200228f - Mathematics - 190122a, 170211u", zet.Zettel{}, "parse Filename: more than one predecessor for file \"200228f - Mathematics - 190122a, 170211u\""},
+
 		// The minimal structure of a zettel, hence a filename with only an id.
 		{"200110d.txt", zet.Zettel{Id: "200110d", Name: "200110d.txt"}, ""},
 

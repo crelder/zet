@@ -32,11 +32,11 @@ func TestValidate(t *testing.T) {
 	}
 
 	want := map[string]bool{
-		"index: link to id 180317q not existing":     true,
-		"reference: missing bibkey \"knut2012\"":     true,
-		"zettel: more than one predecessor: 170327f": true,
-		"zettel: link to id 170311f not existing":    true,
-		"zettel: id 180112a not unique":              true,
+		"index: link to id 180317q not existing": true,
+		"reference: missing bibkey \"knut2012\"": true,
+		//"zettel: more than one predecessor: 170327f": true,  // Need to throw a parse error
+		"zettel: link to id 170311f not existing": true,
+		"zettel: id 180112a not unique":           true,
 	}
 
 	if diff := cmp.Diff(got, want); diff != "" {

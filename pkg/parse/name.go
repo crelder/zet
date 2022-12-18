@@ -123,13 +123,18 @@ func parseContextFromFilename(fn string) (context, error) {
 	}
 	// Remove filetype at the end of a filename
 	index := strings.LastIndex(fn, ".")
-	fn = fn[:index]
+	if index > 0 {
+		fn = fn[:index]
+	}
 	parts := strings.Split(fn, " - ")
 	if len(parts) == 1 {
 		// The filename only consists of an id.
 		return context{}, nil
 	}
 	if len(parts) == 2 {
+		if countAllIds(parts[1]) > 1 {
+			return context{}, fmt.Errorf("parse Filename: more than one predecessor for file %q", fn)
+		}
 		if isId(parts[1]) {
 			// The filename consists of an id and a predecessor id.
 			return context{
@@ -147,6 +152,9 @@ func parseContextFromFilename(fn string) (context, error) {
 		}, nil
 	}
 	if len(parts) == 3 {
+		if countAllIds(parts[2]) > 1 {
+			return context{}, fmt.Errorf("parse Filename: more than one predecessor for file %q", fn)
+		}
 		if isId(parts[2]) {
 			// We don't have context, only id - keywords - predecessor
 			return context{
@@ -293,6 +301,11 @@ func clean(s []string) []string {
 func isId(s string) bool {
 	r, _ := regexp.Compile("^\\d{6}[a-z]{1,3}$")
 	return r.Match([]byte(s))
+}
+
+func countAllIds(s string) int {
+	r, _ := regexp.Compile("\\d{6}[a-z]{1,3}$")
+	return len(r.FindAllIndex([]byte(s), -1))
 }
 
 func getRef(spl string) zet.Reference {
