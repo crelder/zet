@@ -25,6 +25,9 @@ func Filename(filename string) (zet.Zettel, error) {
 		return zet.Zettel{}, fmt.Errorf("parse Filename: a filename should not have more than three separating dashes (' - '). Filename: %q", filename)
 	}
 	context, incon := parseContextFromFilename(filename)
+	if incon != nil {
+		return zet.Zettel{}, incon
+	}
 	return zet.Zettel{
 		Id:          id,
 		Keywords:    parseKeywords(filename),
@@ -33,7 +36,7 @@ func Filename(filename string) (zet.Zettel, error) {
 		References:  context.References,
 		Context:     context.Context,
 		Name:        filename,
-	}, incon
+	}, nil
 }
 
 func toFilename(z zet.Zettel) (string, error) {
@@ -304,8 +307,8 @@ func isId(s string) bool {
 }
 
 func countAllIds(s string) int {
-	r, _ := regexp.Compile("\\d{6}[a-z]{1,3}$")
-	return len(r.FindAllIndex([]byte(s), -1))
+	r, _ := regexp.Compile("\\d{6}[a-z]{1,3}")
+	return len(r.FindAllString(s, -1))
 }
 
 func getRef(spl string) zet.Reference {
