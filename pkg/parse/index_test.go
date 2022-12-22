@@ -14,7 +14,7 @@ func TestParseIndex(t *testing.T) {
 	}{
 		{"",
 			nil,
-			"parse Index: cannot parse empty string"},
+			"parse Index: index is empty"},
 
 		// Simple index with one entry "Leben", which has only one reference id.
 		{"Leben: 170713a",

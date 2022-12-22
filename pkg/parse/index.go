@@ -12,7 +12,7 @@ import (
 func Index(content string) (zet.Index, []error) {
 	var parsErrs []error
 	if content == "" {
-		parsErrs = append(parsErrs, errors.New("parse Index: cannot parse empty string"))
+		parsErrs = append(parsErrs, errors.New("parse Index: index is empty"))
 		return nil, parsErrs
 	}
 	result := make(map[string][]string)
