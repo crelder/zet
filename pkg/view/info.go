@@ -3,7 +3,6 @@ package view
 import (
 	"fmt"
 	"github.com/crelder/zet"
-	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -32,15 +31,15 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string
 		infos["references"] = references
 	}
 
-	//pathDepths := getPathDepths(zettel)
-	//if pathDepths != nil {
-	//	infos["pathDepths"] = convertToStringSlice(pathDepths)
-	//}
+	pathDepths := getPathDepths(zettel)
+	if pathDepths != nil {
+		infos["pathDepths"] = convertToStringSlice(pathDepths)
+	}
 
-	//unindexed := convertToStringSlice(getUnindexedIds(pathDepths, index))
-	//if unindexed != nil {
-	//	infos["unindexed"] = unindexed
-	//}
+	unindexed := convertToStringSlice(getUnindexedIds(pathDepths, index))
+	if unindexed != nil {
+		infos["unindexed"] = unindexed
+	}
 
 	infos["bibkeys"] = AddFrequency(bibkeys)
 
@@ -96,10 +95,11 @@ func getRootAndPathDepth(zettel zet.Zettel, zettels []zet.Zettel) (string, int) 
 		travelled = make(map[string]bool)
 		count     int
 		err       error
+		ok        bool
 	)
 
 	for {
-		if _, ok := traveledIds[z.Id]; ok {
+		if _, ok = travelled[z.Id]; ok {
 			return "", 0 // Is it good to handle it like this?
 		}
 		if z.Predecessor == "" { // No Predecessor
@@ -108,7 +108,7 @@ func getRootAndPathDepth(zettel zet.Zettel, zettels []zet.Zettel) (string, int) 
 		travelled[z.Id] = true                     // Workaround if there are circles in the graph
 		z, err = getZettel(z.Predecessor, zettels) // TODO: Handle error!
 		if err != nil {
-			log.Fatalf("%v", err)
+			return z.Id, count
 		}
 		count += 1
 	}
