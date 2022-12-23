@@ -13,28 +13,31 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string
 	infos := make(map[string][]string)
 
 	ids := AddFrequency(getIds(zettel))
-	infos["ids"] = ids
+	if len(ids) > 0 {
+		infos["ids"] = ids
+	}
 
 	keywords := AddFrequency(getKeywords(zettel))
-	infos["keywords"] = keywords
+	if len(keywords) > 0 {
+		infos["keywords"] = keywords
+	}
 
 	context := AddFrequency(getContext(zettel))
-	infos["context"] = context
+	if len(context) > 0 {
+		infos["context"] = context
+	}
 
 	references := AddFrequency(getReferences(zettel))
-	infos["references"] = references
-
-	unlinked := AddFrequency(getUnlinked(zettel, index))
-	if unlinked != nil {
-		infos["unlinked"] = unlinked
+	if len(references) > 0 {
+		infos["references"] = references
 	}
 
-	pathDepths := convertToStringSlice(getPathDepths(zettel))
+	pathDepths := getPathDepths(zettel)
 	if pathDepths != nil {
-		infos["pathDepths"] = pathDepths
+		infos["pathDepths"] = convertToStringSlice(pathDepths)
 	}
 
-	unindexed := convertToStringSlice(getUnindexedIds(getPathDepths(zettel), index))
+	unindexed := convertToStringSlice(getUnindexedIds(pathDepths, index))
 	if unindexed != nil {
 		infos["unindexed"] = unindexed
 	}
@@ -147,21 +150,6 @@ func getReferences(zettel []zet.Zettel) []string {
 		}
 	}
 	return references
-}
-
-func getUnlinked(zettels []zet.Zettel, index zet.Index) []string {
-	var unlinked []string
-	for _, zettel := range zettels {
-		if len(zettel.Predecessor) != 0 {
-			continue
-		}
-		if isInIndex(zettel.Id, index) {
-			continue
-		}
-
-		unlinked = append(unlinked, zettel.Id)
-	}
-	return unlinked
 }
 
 func isInIndex(id string, index zet.Index) bool {

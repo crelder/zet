@@ -39,13 +39,8 @@ func TestCreateInfo(t *testing.T) {
 		"context.csv":    "GopherCon;2",
 		"references.csv": "clausen2021;1",
 		"bibkeys.csv":    "kernighan1999;1\nsedgewick2011;1",
-		"pathDepths.csv": "190119e;3",
-
-		// Unlinked contains all zettel Ids, that have a pathDepth greater than 1 (so there is a chain),
-		// but there is not an Index entry that refers to the root element of that path.
-		// Note: 190119e is also unliked, but it is referenced in the index,
-		// therefore it doesn't show up in this list.
-		"unlinked.csv": "180522a;1",
+		"pathDepths.csv": "190119e;2",
+		"unindexed.csv":  "190119e;2", // TODO: Also test that something which is a chain but in the index, doesn't show up here.
 	}
 
 	dir, err := os.ReadDir(infoPath)
@@ -56,9 +51,6 @@ func TestCreateInfo(t *testing.T) {
 	// map[filename]content
 	got := make(map[string]string)
 	for _, dirEntry := range dir {
-		if dirEntry.Name() == "unindexed.csv" { // For now we will test this in a separate test case
-			continue
-		}
 		file, err := os.ReadFile(path.Join(infoPath, dirEntry.Name()))
 		if err != nil {
 			t.Errorf("error reading file: %v", err)
