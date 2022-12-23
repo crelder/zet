@@ -48,7 +48,7 @@ type Viewer interface {
 //
 // The second return parameter contains a potential error.
 type Validator interface {
-	Val() ([]error, error)
+	Val() ([]InconErr, error)
 }
 
 // Repo gives access to the content of your zettelkasten.

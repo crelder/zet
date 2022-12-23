@@ -33,14 +33,14 @@ type Reference struct {
 	Location string
 }
 
-// Incon stands for inconsistency.
+// InconErr stands for inconsistency error, indicating that something is not right with your zettelkasten.
 // They are different from errors, since the programs just is aware of them but can continue functioning.
 // If you want to be sure, that zet operates correctly on your zettelkasten, make sure that
 // you don't have any inconsistencies in your zettelkasten. Run `zet validate` to get a list of inconsistencies.
-type Incon struct {
-	Description string
+type InconErr struct {
+	Message error
 }
 
-func (i Incon) Error() string {
-	return i.Description
+func (i InconErr) Error() string {
+	return i.Error()
 }

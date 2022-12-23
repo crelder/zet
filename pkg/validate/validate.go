@@ -22,7 +22,9 @@ func New(r zet.Repo) Validator {
 // Val returns all inconsistencies that your zettelkasten has in form of a slice of inconsistencies.
 // If the same inconsistency occurs several times, only one is returned, not several.
 // If there are none, it returns nil.
-func (v Validator) Val() ([]error, error) {
+func (v Validator) Val() ([]zet.InconErr, error) {
+	var incons []zet.InconErr
+
 	zettel, err := v.Repo.GetZettel()
 	if err != nil {
 		return nil, err
@@ -39,7 +41,6 @@ func (v Validator) Val() ([]error, error) {
 		return nil, err3
 	}
 
-	var incons []error
 	incons = append(incons, validate(zettel, index, bibkeys)...)
 	incons = makeUnique(incons)
 	sort.Slice(incons, func(i, j int) bool {
@@ -50,50 +51,51 @@ func (v Validator) Val() ([]error, error) {
 }
 
 // makeUnique returns a unique list of errors, where a specific error string only occurs once.
-func makeUnique(incons []error) []error {
+func makeUnique(incons []zet.InconErr) []zet.InconErr {
 	m := make(map[string]bool)
 	for _, i := range incons {
 		m[i.Error()] = true
 	}
 
-	var result []error
+	var result []zet.InconErr
 	for str := range m {
-		result = append(result, errors.New(str))
+		result = append(result, zet.InconErr{errors.New(str)})
 	}
 	return result
 }
 
 // validate returns a slice of inconsistencies.
 // If there are no inconsistencies, it returns nil.
-func validate(zettel []zet.Zettel, index zet.Index, bibkeys []string) []error {
+func validate(zettel []zet.Zettel, index zet.Index, bibkeys []string) []zet.InconErr {
 
-	var incons []error
+	var incons []zet.InconErr
 
 	doubleIds := getNonUniqueIds(zettel)
 	for _, doubleId := range doubleIds {
-		incons = append(incons, fmt.Errorf("zettel: id %v not unique", doubleId))
+		incons = append(incons, zet.InconErr{
+			Message: fmt.Errorf("zettel: id %v not unique", doubleId)})
 	}
 
 	deadLinks := getDeadLinks(zettel)
 	for _, deadLink := range deadLinks {
-		incons = append(incons, fmt.Errorf("zettel: link to id %v not existing", deadLink))
+		incons = append(incons, zet.InconErr{fmt.Errorf("zettel: link to id %v not existing", deadLink)})
 	}
 
 	deadIndexLinks := getDeadIndexLinks(zettel, index)
 	for _, deadIndexLink := range deadIndexLinks {
-		incons = append(incons, fmt.Errorf("index: link to id %v not existing", deadIndexLink))
+		incons = append(incons, zet.InconErr{fmt.Errorf("index: link to id %v not existing", deadIndexLink)})
 	}
 
 	// Missing Bibkey
 	missingBibKeys := getMissingBibKeys(zettel, bibkeys)
 	for _, missingBibKey := range missingBibKeys {
-		incons = append(incons, fmt.Errorf("reference: missing bibkey %q", missingBibKey))
+		incons = append(incons, zet.InconErr{fmt.Errorf("reference: missing bibkey %q", missingBibKey)})
 	}
 
 	// More than one predecessor
 	tooManyPredecessorsIds := getTooManyPredecessorsIds(zettel)
 	for _, id := range tooManyPredecessorsIds {
-		incons = append(incons, fmt.Errorf("zettel: more than one predecessor: %v", id))
+		incons = append(incons, zet.InconErr{fmt.Errorf("zettel: more than one predecessor: %v", id)})
 	}
 
 	return incons
