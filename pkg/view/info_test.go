@@ -41,6 +41,7 @@ func TestCreateInfo(t *testing.T) {
 		"bibkeys.csv":    "kernighan1999;1\nsedgewick2011;1",
 		"pathDepths.csv": "190119e;2",
 		"unindexed.csv":  "190119e;2", // TODO: Also test that something which is a chain but in the index, doesn't show up here.
+		// TODO: Check if a circular structur is defended against.
 	}
 
 	dir, err := os.ReadDir(infoPath)

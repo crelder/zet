@@ -32,15 +32,15 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string
 		infos["references"] = references
 	}
 
-	pathDepths := getPathDepths(zettel)
-	if pathDepths != nil {
-		infos["pathDepths"] = convertToStringSlice(pathDepths)
-	}
+	//pathDepths := getPathDepths(zettel)
+	//if pathDepths != nil {
+	//	infos["pathDepths"] = convertToStringSlice(pathDepths)
+	//}
 
-	unindexed := convertToStringSlice(getUnindexedIds(pathDepths, index))
-	if unindexed != nil {
-		infos["unindexed"] = unindexed
-	}
+	//unindexed := convertToStringSlice(getUnindexedIds(pathDepths, index))
+	//if unindexed != nil {
+	//	infos["unindexed"] = unindexed
+	//}
 
 	infos["bibkeys"] = AddFrequency(bibkeys)
 
