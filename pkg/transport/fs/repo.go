@@ -38,11 +38,11 @@ func New(path string, p zet.Parser) Repo {
 //
 // The second parameter []string contains all inconsistencies that occureed during parsing the zettel filename.
 // Only if not an error happened, it will return zettel and inconsistencies.
-func (r Repo) GetZettel() ([]zet.Zettel, error) {
+func (r Repo) GetZettel() ([]zet.Zettel, []zet.InconErr, error) {
 	var zettels []zet.Zettel
-	files, err := r.getFiles()
+	files, parseErr, err := r.getFiles()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	for _, zf := range files {
 		zettels = append(zettels, zf.zettel)
@@ -55,21 +55,18 @@ func (r Repo) GetZettel() ([]zet.Zettel, error) {
 
 	})
 
-	zettels, err = addFolgezettel(zettels)
-	if err != nil {
-		return nil, err
-	}
+	zettels = addFolgezettel(zettels)
 
-	return zettels, nil
+	return zettels, parseErr, nil
 }
 
 // addFolgezettel calculates the Folgezettel for each Zettel.
 // This is needed, because in the filename, only the predecessor zettel are provided.
 // The predecessors are used to calculate the Folgezettel for each Zettel.
 // In case of a detected double id it will return an error.
-func addFolgezettel(zettels []zet.Zettel) ([]zet.Zettel, error) {
+func addFolgezettel(zettels []zet.Zettel) []zet.Zettel {
 	if len(zettels) == 0 {
-		return nil, nil
+		return nil
 	}
 
 	var result []zet.Zettel
@@ -92,7 +89,7 @@ func addFolgezettel(zettels []zet.Zettel) ([]zet.Zettel, error) {
 		})
 	}
 
-	return result, nil
+	return result
 }
 
 // getFolgezettelIds returns a map that has the id of a zettel and all follow up zettel ids (Folgezettel).
@@ -111,23 +108,26 @@ func getFolgezettelIds(zettels []zet.Zettel) map[string][]string {
 // by a dot at the beginning of the name.
 //
 // In case of double ids, an error get returned.
-func (r Repo) getFiles() ([]zettelFile, error) {
+func (r Repo) getFiles() ([]zettelFile, []zet.InconErr, error) {
 	// Read all the zettel
 	var zettelPath = r.path + "/zettel"
 	dirEntries, err := os.ReadDir(zettelPath)
 	if err != nil {
-		return nil, fmt.Errorf("fs: %v", err)
+		return nil, nil, fmt.Errorf("fs: %v", err)
 	}
 	var zettelFiles []zettelFile
+	var parseErr error
 	var z zet.Zettel
+	var parseErrors []zet.InconErr
 	for _, file := range dirEntries {
-		if notValid(file) {
+		if visibleFile(file) {
 			continue
 		}
-		var parseErr error
+
 		z, parseErr = r.parser.Filename(file.Name())
 		if parseErr != nil {
-			return nil, parseErr
+			parseErrors = append(parseErrors, zet.InconErr{parseErr})
+			continue
 		}
 		zettelFiles = append(zettelFiles, zettelFile{
 			zettel:   z,
@@ -136,36 +136,37 @@ func (r Repo) getFiles() ([]zettelFile, error) {
 		})
 	}
 
-	return zettelFiles, nil
+	return zettelFiles, parseErrors, nil
 }
 
-// notValid checks if the filename is valid. Only visible files are valid.
+// visibleFile checks if the filename is valid. Only visible files are valid.
 // Therefore, the check currently only works on unix systems.
-func notValid(file os.DirEntry) bool {
+func visibleFile(file os.DirEntry) bool {
 	return strings.HasPrefix(file.Name(), ".")
 }
 
 // GetIndex returns the index of your zettelkasten.
 // One index entry is a keyword with several ids in the form of:
-//        Evolution: 170311a
+//
+//	Evolution: 170311a
+//
 // One index entry can also have several ids:
-//        Technology: 220112d, 190314f
+//
+//	Technology: 220112d, 190314f
 //
 // An Index is used as access point into a line of thought (=zettel chain) regarding this keyword.
 // ParsingErrors are returned with the second parameter []error.
 // All other errors via the last parameter.
-func (r Repo) GetIndex() (zet.Index, error) {
+func (r Repo) GetIndex() (zet.Index, []zet.InconErr, error) {
 	var index map[string][]string
 	f, err := os.ReadFile(r.path + "/index.txt")
 	if err != nil {
-		return nil, fmt.Errorf("fs: %v", err)
+		return nil, nil, fmt.Errorf("fs: %v", err)
 	}
 
-	index, parseErr := r.parser.Index(string(f))
-	if parseErr != nil {
-		return nil, parseErr[0]
-	}
-	return index, nil
+	index, parseErrors := r.parser.Index(string(f))
+
+	return index, parseErrors, nil
 
 }
 
@@ -202,7 +203,7 @@ func (r Repo) PersistInfo(m map[string][]string) error {
 }
 
 func (r Repo) getFilePath(id string) (string, error) {
-	zfs, err := r.getFiles()
+	zfs, _, err := r.getFiles()
 	if err != nil {
 		return "", err
 	}

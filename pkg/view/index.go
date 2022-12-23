@@ -60,7 +60,7 @@ func addLink(id string, links map[string]string, counter int, path string, zette
 		return links
 	}
 
-	newName := path + "/" + fmt.Sprintf("%02d", counter) + "_" + z.Name
+	newName := path + "/" + fmt.Sprintf("%03d", counter) + " " + z.Name
 	links[newName] = z.Id
 	counter++
 	if len(z.Folgezettel) == 1 {

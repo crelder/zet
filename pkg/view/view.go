@@ -34,11 +34,11 @@ func New(ip ViewPersister, r zet.Repo) Viewer {
 
 // CreateViews creates a folder with different access points (links).
 func (v Viewer) CreateViews() error {
-	zettel, err := v.Repo.GetZettel()
+	zettel, _, err := v.Repo.GetZettel()
 	if err != nil {
 		return fmt.Errorf("error creating views: %w", err)
 	}
-	index, err := v.Repo.GetIndex()
+	index, _, err := v.Repo.GetIndex()
 	if err != nil {
 		return fmt.Errorf("error creating index: %w", err)
 	}

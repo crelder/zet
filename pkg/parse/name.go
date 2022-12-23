@@ -15,14 +15,14 @@ import (
 // If you want to provide context, you must at least provide one keyword though.
 func Filename(filename string) (zet.Zettel, error) {
 	if filename == "" {
-		return zet.Zettel{}, errors.New("parse Filename: could not parse empty filename string")
+		return zet.Zettel{}, errors.New("parse filename: could not parse empty filename string")
 	}
 	id := parseId(filename)
 	if id == "" {
-		return zet.Zettel{}, fmt.Errorf("parse Filename: could not parse id from filename %q", filename)
+		return zet.Zettel{}, fmt.Errorf("parse filename: could not parse id from filename %q", filename)
 	}
 	if strings.Count(filename, " - ") > 3 {
-		return zet.Zettel{}, fmt.Errorf("parse Filename: a filename should not have more than three separating dashes (' - '). Filename: %q", filename)
+		return zet.Zettel{}, fmt.Errorf("parse filename: a filename should not have more than three separating dashes (' - '). Filename: %q", filename)
 	}
 	context, incon := parseContextFromFilename(filename)
 	if incon != nil {
@@ -36,7 +36,7 @@ func Filename(filename string) (zet.Zettel, error) {
 		References:  context.References,
 		Context:     context.Context,
 		Name:        filename,
-	}, nil
+	}, incon
 }
 
 func toFilename(z zet.Zettel) (string, error) {
@@ -136,7 +136,7 @@ func parseContextFromFilename(fn string) (context, error) {
 	}
 	if len(parts) == 2 {
 		if countAllIds(parts[1]) > 1 {
-			return context{}, fmt.Errorf("parse Filename: more than one predecessor for file %q", fn)
+			return context{}, fmt.Errorf("parse filename: more than one predecessor for file %q", fn)
 		}
 		if isId(parts[1]) {
 			// The filename consists of an id and a predecessor id.
@@ -156,7 +156,7 @@ func parseContextFromFilename(fn string) (context, error) {
 	}
 	if len(parts) == 3 {
 		if countAllIds(parts[2]) > 1 {
-			return context{}, fmt.Errorf("parse Filename: more than one predecessor for file %q", fn)
+			return context{}, fmt.Errorf("parse filename: more than one predecessor for file %q", fn)
 		}
 		if isId(parts[2]) {
 			// We don't have context, only id - keywords - predecessor

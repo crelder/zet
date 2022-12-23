@@ -39,7 +39,7 @@ func (i Importer) Import(path string) (int, error) {
 		return 0, err
 	}
 
-	zettel, err2 := i.repo.GetZettel()
+	zettel, _, err2 := i.repo.GetZettel()
 	if err2 != nil {
 		return 0, err2
 	}

@@ -32,12 +32,13 @@ func TestValidate(t *testing.T) {
 	}
 
 	want := map[string]bool{
-		"zettel: more than one predecessor: 170327f":   true,
-		"zettel: link to id 160122e not existing":      true,
-		"zettel: id 180112a not unique":                true,
-		"zettel: cannot parse filename 'noId.txt'":     true,
-		"index: could not parse line 'Water::170312w'": true,
-		"reference: missing bibkey \"pike1989\"":       true,
+		"zettel: link to id 160122e not existing": true,
+		"zettel: id 180112a not unique":           true,
+		"parse filename: more than one predecessor for file \"170327f - More than one predecessor - 180112a, 170311f\"": true,
+		"parse filename: could not parse id from filename \"noId.txt\"":                                                 true,
+		"index: could not parse line \"Water::170312w\"":                                                                true,
+		"index: link to id 180317q not existing":                                                                        true,
+		"reference: missing bibkey \"knut2012\"":                                                                        true,
 	}
 
 	if diff := cmp.Diff(got, want); diff != "" {

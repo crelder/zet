@@ -42,5 +42,5 @@ type InconErr struct {
 }
 
 func (i InconErr) Error() string {
-	return i.Error()
+	return i.Message.Error()
 }

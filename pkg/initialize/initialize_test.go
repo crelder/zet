@@ -53,7 +53,7 @@ func TestInitExample(t *testing.T) {
 	// Act
 	err2 := initiator.InitExample()
 	if err2 != nil {
-		t.Errorf("error occurred: %v", err2)
+		t.Fatalf("error occurred: %v", err2)
 	}
 
 	// Assert

@@ -13,23 +13,23 @@ func TestParseFilename(t *testing.T) {
 		errMsg   string
 	}{
 		// There is nothing to parse, when empty string is passed as a parameter.
-		{"", zet.Zettel{}, "parse Filename: could not parse empty filename string"},
+		{"", zet.Zettel{}, "parse filename: could not parse empty filename string"},
 
 		// This id is not valid.
-		{"1923a - Evolution, Lego bauen", zet.Zettel{}, "parse Filename: could not parse id from filename \"1923a - Evolution, Lego bauen\""},
-		{"210404Sof - Software.txt", zet.Zettel{}, "parse Filename: could not parse id from filename \"210404Sof - Software.txt\""},
+		{"1923a - Evolution, Lego bauen", zet.Zettel{}, "parse filename: could not parse id from filename \"1923a - Evolution, Lego bauen\""},
+		{"210404Sof - Software.txt", zet.Zettel{}, "parse filename: could not parse id from filename \"210404Sof - Software.txt\""},
 
 		// The id is not at the start.
-		{"Evolution, Lego bauen - 170402a", zet.Zettel{}, "parse Filename: could not parse id from filename \"Evolution, Lego bauen - 170402a\""},
+		{"Evolution, Lego bauen - 170402a", zet.Zettel{}, "parse filename: could not parse id from filename \"Evolution, Lego bauen - 170402a\""},
 
 		// There is no id at all in the filename.
-		{"Evolution, Lego bauen", zet.Zettel{}, "parse Filename: could not parse id from filename \"Evolution, Lego bauen\""},
+		{"Evolution, Lego bauen", zet.Zettel{}, "parse filename: could not parse id from filename \"Evolution, Lego bauen\""},
 
 		// More than four parts separated by dashes are too many.
-		{"180228f - Design - Vince, baber2011 - something else - 190122a", zet.Zettel{}, "parse Filename: a filename should not have more than three separating dashes (' - '). Filename: \"180228f - Design - Vince, baber2011 - something else - 190122a\""},
+		{"180228f - Design - Vince, baber2011 - something else - 190122a", zet.Zettel{}, "parse filename: a filename should not have more than three separating dashes (' - '). Filename: \"180228f - Design - Vince, baber2011 - something else - 190122a\""},
 
 		// More than one predecessor. Only one allowed.
-		{"200228f - Mathematics - 190122a, 170211u", zet.Zettel{}, "parse Filename: more than one predecessor for file \"200228f - Mathematics - 190122a, 170211u\""},
+		{"200228f - Mathematics - 190122a, 170211u", zet.Zettel{}, "parse filename: more than one predecessor for file \"200228f - Mathematics - 190122a, 170211u\""},
 
 		// The minimal structure of a zettel, hence a filename with only an id.
 		{"200110d.txt", zet.Zettel{Id: "200110d", Name: "200110d.txt"}, ""},

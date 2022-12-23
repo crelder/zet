@@ -25,16 +25,18 @@ func New(r zet.Repo) Validator {
 func (v Validator) Val() ([]zet.InconErr, error) {
 	var incons []zet.InconErr
 
-	zettel, err := v.Repo.GetZettel()
+	zettel, i, err := v.Repo.GetZettel()
 	if err != nil {
 		return nil, err
 	}
+	incons = append(incons, i...)
 
 	// indexParsingErrors
-	index, err2 := v.Repo.GetIndex()
+	index, i, err2 := v.Repo.GetIndex()
 	if err2 != nil {
 		return nil, err2
 	}
+	incons = append(incons, i...)
 
 	bibkeys, err3 := v.Repo.GetBibkeys()
 	if err3 != nil {
@@ -92,12 +94,6 @@ func validate(zettel []zet.Zettel, index zet.Index, bibkeys []string) []zet.Inco
 		incons = append(incons, zet.InconErr{fmt.Errorf("reference: missing bibkey %q", missingBibKey)})
 	}
 
-	// More than one predecessor
-	tooManyPredecessorsIds := getTooManyPredecessorsIds(zettel)
-	for _, id := range tooManyPredecessorsIds {
-		incons = append(incons, zet.InconErr{fmt.Errorf("zettel: more than one predecessor: %v", id)})
-	}
-
 	return incons
 }
 
@@ -113,16 +109,6 @@ func getNonUniqueIds(zettels []zet.Zettel) []string {
 		m[zettel.Id] = true
 	}
 	return doubleIds
-}
-
-func getTooManyPredecessorsIds(zettel []zet.Zettel) []string {
-	var ids []string
-	for _, z := range zettel {
-		if len(z.Predecessor) > 1 {
-			ids = append(ids, z.Id)
-		}
-	}
-	return ids
 }
 
 func getMissingBibKeys(zettel []zet.Zettel, bibkeys []string) []string {
@@ -145,6 +131,9 @@ func getMissingBibKeys(zettel []zet.Zettel, bibkeys []string) []string {
 func getDeadLinks(zettel []zet.Zettel) []string {
 	var deadLinks []string
 	for _, z := range zettel {
+		if z.Predecessor == "" {
+			continue
+		}
 		if !idExist(z.Predecessor, zettel) {
 			deadLinks = append(deadLinks, z.Predecessor)
 		}
