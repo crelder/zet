@@ -6,8 +6,9 @@
 // * Index
 //
 // It also holds all interfaces that are
-//   a) driving ports of the application therefore making clear what this application does and
-//   b) used in more than one package, so that from all other packages the dependencies point only to this package.
+//
+//	a) driving ports of the application therefore making clear what this application does and
+//	b) used in more than one package, so that from all other packages the dependencies point only to this package.
 package zet
 
 // Importer persists zettel content.
@@ -41,9 +42,10 @@ type Viewer interface {
 //
 // Val returns all inconsistencies of your zettelkasten as the first parameter.
 // Inconsistencies can be:
-//     * dead links
-//     * double ids
-//     * missing reference entry
+//   - dead links
+//   - double ids
+//   - missing reference entry
+//
 // The second return parameter contains a potential error.
 type Validator interface {
 	Val() ([]error, error)

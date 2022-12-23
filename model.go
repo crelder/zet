@@ -32,3 +32,15 @@ type Reference struct {
 	Bibkey   string
 	Location string
 }
+
+// Incon stands for inconsistency.
+// They are different from errors, since the programs just is aware of them but can continue functioning.
+// If you want to be sure, that zet operates correctly on your zettelkasten, make sure that
+// you don't have any inconsistencies in your zettelkasten. Run `zet validate` to get a list of inconsistencies.
+type Incon struct {
+	Description string
+}
+
+func (i Incon) Error() string {
+	return i.Description
+}
