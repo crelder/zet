@@ -1,4 +1,4 @@
-package view
+package export
 
 import (
 	"fmt"
@@ -7,6 +7,70 @@ import (
 	"strconv"
 	"strings"
 )
+
+// ExportPersister creates links to zettel. These links that serve as access points into your zettelkasten.
+// The path where the links lie is specified within the ExportPersister.
+//
+// PersistIndex creates a tree-like link structure, so-called "Folgezettel".
+// This represents the physical representation of how Niklas Luhmann arranged his Zettel in his
+// wooden zettelkasten boxes. This is used for creating chains of thoughts.
+
+// PersistInfo persists some information like a list of keywords used in your zettelkasten and the number of occurrences.
+type ExportPersister interface {
+	PersistInfo(m map[string][]string) error
+}
+
+// Exporter contains the application entry point for all operations regarding views upon your zettelkasten.
+// Exporter satisfies the zet.Exporter interface.
+type Exporter struct {
+	ViewPersister ExportPersister
+	Repo          zet.Repo
+}
+
+func New(ip ExportPersister, r zet.Repo) Exporter {
+	return Exporter{
+		ViewPersister: ip,
+		Repo:          r,
+	}
+}
+
+// CreateViews creates a folder with different access points (links).
+func (e Exporter) Export() error {
+	zettel, _, err := e.Repo.GetZettel()
+	if err != nil {
+		return fmt.Errorf("error creating views: %w", err)
+	}
+	index, _, err := e.Repo.GetIndex()
+	if err != nil {
+		return fmt.Errorf("error creating index: %w", err)
+	}
+
+	references, err := e.Repo.GetBibkeys()
+	if err != nil {
+		return err
+	}
+
+	// Call method that persists all these info e.InfoPersister.PersistIndex(name, []string).
+	// Concrete Implementierung heißt CSVPersister.
+	infos := getInfos(zettel, index, references)
+
+	err = e.ViewPersister.PersistInfo(infos)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getZettel(id string, zettel []zet.Zettel) (zet.Zettel, error) {
+	// TODO: Make map out of it?
+	for _, z := range zettel {
+		if z.Id == id {
+			return z, nil
+		}
+	}
+	return zet.Zettel{}, fmt.Errorf("export: zettel with id %v not found", id)
+}
 
 func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string][]string {
 	infos := make(map[string][]string)

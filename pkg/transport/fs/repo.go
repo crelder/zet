@@ -13,7 +13,7 @@ import (
 )
 
 // Repo allows access to the content of your zettelkasten.
-// Repo satisfies the zet.Repo, view.Persister and imports.Reader interface.
+// Repo satisfies the zet.Repo, index.Indexer, export.Exporter and imports.Reader interface.
 // path represents the path to the directory, where your zettelkasten lies.
 type Repo struct {
 	parser zet.Parser

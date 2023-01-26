@@ -29,12 +29,12 @@ type Initiator interface {
 	InitExample() error
 }
 
-// Viewer is the instance for accessing all functionality regarding
+// Exporter is the instance for accessing all functionality regarding
 // entry points into your zettelkasten (so-called "views").
 //
 // CreateViews will create all access points into your zettelkasten.
-type Viewer interface {
-	CreateViews() error
+type Exporter interface {
+	Export() error
 }
 
 // Validator is the instance for accessing all functionality regarding

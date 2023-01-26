@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/crelder/zet/pkg/export"
 	"github.com/crelder/zet/pkg/imports"
+	"github.com/crelder/zet/pkg/index"
 	"github.com/crelder/zet/pkg/initialize"
 	"github.com/crelder/zet/pkg/parse"
 	"github.com/crelder/zet/pkg/transport/cli"
 	"github.com/crelder/zet/pkg/transport/fs"
 	"github.com/crelder/zet/pkg/validate"
-	"github.com/crelder/zet/pkg/view"
 	"log"
 	"os"
 )
@@ -42,10 +43,11 @@ func createApp() (cli.App, error) {
 	// Wire app together
 	parser := parse.New()
 	repo := fs.New(wd, parser)
-	viewer := view.New(repo, repo)
+	exporter := export.New(repo, repo)
+	indexer := index.New(repo, repo)
 	importer := imports.New(parser, repo, repo)
 	validator := validate.New(repo)
 	initiator := initialize.New(wd)
 
-	return cli.NewApp(importer, viewer, validator, initiator), nil
+	return cli.NewApp(importer, exporter, indexer, validator, initiator), nil
 }

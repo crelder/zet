@@ -3,6 +3,8 @@ package cli
 import (
 	"fmt"
 	"github.com/crelder/zet"
+	"github.com/crelder/zet/pkg/export"
+	"github.com/crelder/zet/pkg/index"
 	"os"
 )
 
@@ -10,15 +12,17 @@ const version = "0.3.0"
 
 type App struct {
 	importer  zet.Importer
-	viewer    zet.Viewer
+	indexer   index.Indexer
+	exporter  export.Exporter
 	validator zet.Validator
 	initiator zet.Initiator
 }
 
-func NewApp(importer zet.Importer, viewer zet.Viewer, validator zet.Validator, initiator zet.Initiator) App {
+func NewApp(importer zet.Importer, exporter export.Exporter, indexer index.Indexer, validator zet.Validator, initiator zet.Initiator) App {
 	return App{
 		importer:  importer,
-		viewer:    viewer,
+		indexer:   indexer,
+		exporter:  exporter,
 		validator: validator,
 		initiator: initiator,
 	}
@@ -88,13 +92,22 @@ func (cli App) Start() error {
 		}
 		fmt.Printf("Imported %d zettel into your zettel folder", n)
 		return nil
-	case "views":
+	case "export":
 		if len(os.Args) > 2 {
-			return fmt.Errorf("command 'zet view' does not need any parameters")
+			return fmt.Errorf("command 'zet export' does not need any parameters")
 		}
-		err := cli.viewer.CreateViews()
+		err := cli.exporter.Export()
 		if err != nil {
 			return fmt.Errorf("Could not create views: %v\n", err)
+		}
+		return nil
+	case "index":
+		if len(os.Args) > 2 {
+			return fmt.Errorf("command 'zet index' does not need any parameters")
+		}
+		err := cli.indexer.Create()
+		if err != nil {
+			return fmt.Errorf("Could not create index: %v\n", err)
 		}
 		return nil
 	case "validate":

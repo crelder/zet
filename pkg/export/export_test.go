@@ -1,4 +1,4 @@
-package view
+package export
 
 import (
 	"github.com/crelder/zet/pkg/parse"
@@ -27,7 +27,7 @@ func TestCreateInfo(t *testing.T) {
 	clearPath(indexPath)
 
 	// Act
-	err = viewer.CreateViews()
+	err = viewer.Export()
 	if err != nil {
 		t.Errorf("Could not generate views: %v", err)
 	}
@@ -73,7 +73,7 @@ func TestUnindexed(t *testing.T) {
 	var pathTestRepo = wd + "/testdata/zettelkasten3"
 	parser := parse.New()
 	r := fs.New(pathTestRepo, parser)
-	viewer := New(r, r)
+	exporter := New(r, r)
 
 	// Remove this directory, which might got created in a previous test
 	infoPath := pathTestRepo + "/INFO"
@@ -82,7 +82,7 @@ func TestUnindexed(t *testing.T) {
 	clearPath(indexPath)
 
 	// Act
-	err = viewer.CreateViews()
+	err = exporter.Export()
 	if err != nil {
 		t.Errorf("Could not generate views: %v", err)
 	}

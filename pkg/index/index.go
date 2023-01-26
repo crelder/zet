@@ -6,8 +6,8 @@ import (
 	"path"
 )
 
-// Viewer contains the application entry point for all operations regarding views upon your zettelkasten.
-// Viewer satisfies the zet.Viewer interface.
+// Indexer contains the application entry point for all operations regarding views upon your zettelkasten.
+// Indexer satisfies the index.Indexer interface.
 type Indexer struct {
 	Persister Persister
 	Repo      zet.Repo
@@ -137,5 +137,5 @@ func getZettel(id string, zettel []zet.Zettel) (zet.Zettel, error) {
 			return z, nil
 		}
 	}
-	return zet.Zettel{}, fmt.Errorf("view: zettel with id %v not found", id)
+	return zet.Zettel{}, fmt.Errorf("index: zettel with id %v not found", id)
 }
