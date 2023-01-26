@@ -5,8 +5,8 @@
 /pkg/imports/testdata/zettelkasten/zettel/211005g - Prozess, Glück, Enttäuschung, Hoffnung - Paul Watzlawick, Anleitung zum Unglücklich sein.txt
 /pkg/initialize/tmp_test_init_example/
 /pkg/initialize/tmp_test/
-/pkg/view/testdata/zettelkasten/INDEX/
-/pkg/view/testdata/zettelkasten/INFO/
+/pkg/index/testdata/zettelkasten/INDEX/
+/pkg/index/testdata/zettelkasten/INFO/
 /pkg/view/testdata/zettelkasten2/INDEX/
 /pkg/view/testdata/zettelkasten2/INFO/
 /pkg/view/testdata/zettelkasten3/INDEX/

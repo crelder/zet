@@ -14,7 +14,6 @@ import (
 
 // PersistInfo persists some information like a list of keywords used in your zettelkasten and the number of occurrences.
 type ViewPersister interface {
-	PersistIndex(links map[string]string) error // links[linkName]targetID
 	PersistInfo(m map[string][]string) error
 }
 
@@ -44,18 +43,6 @@ func (v Viewer) CreateViews() error {
 	}
 
 	references, err := v.Repo.GetBibkeys()
-	if err != nil {
-		return err
-	}
-
-	// Create a method, which returns all paths like "Komplexität/180215a - Komplexität, ..../180215a - Komplexität, ..."
-	folgezettelMap, err := getFolgezettelMap(zettel, index)
-	if err != nil {
-		return err
-	}
-	// PersistIndex all these paths via a call v.ViewPersister.PersistIndex(map[paths][]ids). It creates already everything in "zettelkasten/INDEX/"
-	// Concrete Implementierung heißt FsIndexPersister.
-	err = v.ViewPersister.PersistIndex(folgezettelMap)
 	if err != nil {
 		return err
 	}
