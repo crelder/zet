@@ -8,5 +8,5 @@ main
 /pkg/initialize/tmp_test_init_example/
 /pkg/initialize/tmp_test/
 /pkg/index/testdata/zettelkasten/INDEX/
+/pkg/export/testdata/zettelkasten/EXPORT/
 /pkg/export/testdata/zettelkasten2/EXPORT/
-/pkg/export/testdata/zettelkasten3/EXPORT/

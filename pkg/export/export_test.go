@@ -15,7 +15,7 @@ func TestCreateExport(t *testing.T) {
 	if err != nil {
 		t.Errorf("could not get the current working dir")
 	}
-	var pathTestRepo = wd + "/testdata/zettelkasten2"
+	var pathTestRepo = wd + "/testdata/zettelkasten"
 	parser := parse.New()
 	r := fs.New(pathTestRepo, parser)
 	viewer := New(r, r)
@@ -68,7 +68,7 @@ func TestUnindexed(t *testing.T) {
 	if err != nil {
 		t.Errorf("could not get the current working dir")
 	}
-	var pathTestRepo = wd + "/testdata/zettelkasten3"
+	var pathTestRepo = wd + "/testdata/zettelkasten2"
 	parser := parse.New()
 	r := fs.New(pathTestRepo, parser)
 	exporter := New(r, r)
