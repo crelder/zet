@@ -11,22 +11,22 @@ import (
 func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string][]string {
 	infos := make(map[string][]string)
 
-	ids := AddFrequency(getIds(zettel))
+	ids := addFrequency(getIds(zettel))
 	if len(ids) > 0 {
 		infos["ids"] = ids
 	}
 
-	keywords := AddFrequency(getKeywords(zettel))
+	keywords := addFrequency(getKeywords(zettel))
 	if len(keywords) > 0 {
 		infos["keywords"] = keywords
 	}
 
-	context := AddFrequency(getContext(zettel))
+	context := addFrequency(getContext(zettel))
 	if len(context) > 0 {
 		infos["context"] = context
 	}
 
-	references := AddFrequency(getReferences(zettel))
+	references := addFrequency(getReferences(zettel))
 	if len(references) > 0 {
 		infos["references"] = references
 	}
@@ -41,7 +41,7 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string
 		infos["unindexed"] = unindexed
 	}
 
-	infos["bibkeys"] = AddFrequency(bibkeys)
+	infos["bibkeys"] = addFrequency(bibkeys)
 
 	return infos
 }
@@ -163,7 +163,7 @@ func isInIndex(id string, index zet.Index) bool {
 	return false
 }
 
-func AddFrequency(s []string) []string {
+func addFrequency(s []string) []string {
 	m := make(map[string]int)
 
 	for _, elem := range s {
