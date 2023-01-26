@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestCreateInfo(t *testing.T) {
+func TestCreateExport(t *testing.T) {
 	// Arrange
 	wd, err := os.Getwd()
 	if err != nil {
@@ -21,10 +21,8 @@ func TestCreateInfo(t *testing.T) {
 	viewer := New(r, r)
 
 	// Remove this directory, which might got created in a previous test
-	infoPath := pathTestRepo + "/INFO"
+	infoPath := pathTestRepo + "/EXPORT"
 	clearPath(infoPath)
-	indexPath := pathTestRepo + "/INDEX"
-	clearPath(indexPath)
 
 	// Act
 	err = viewer.Export()
@@ -76,10 +74,8 @@ func TestUnindexed(t *testing.T) {
 	exporter := New(r, r)
 
 	// Remove this directory, which might got created in a previous test
-	infoPath := pathTestRepo + "/INFO"
-	clearPath(infoPath)
-	indexPath := pathTestRepo + "/INDEX"
-	clearPath(indexPath)
+	exportPath := pathTestRepo + "/EXPORT"
+	clearPath(exportPath)
 
 	// Act
 	err = exporter.Export()
@@ -94,9 +90,9 @@ func TestUnindexed(t *testing.T) {
 	want := "190119e;3"
 
 	unindexedFileName := "unindexed.csv"
-	got, err := os.ReadFile(path.Join(infoPath, unindexedFileName))
+	got, err := os.ReadFile(path.Join(exportPath, unindexedFileName))
 	if err != nil {
-		t.Errorf("error reading file %v: %v", path.Join(infoPath, unindexedFileName), err)
+		t.Errorf("error reading file %v: %v", path.Join(exportPath, unindexedFileName), err)
 	}
 
 	if diff := cmp.Diff(string(got), want); diff != "" {

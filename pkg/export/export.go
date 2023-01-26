@@ -23,14 +23,14 @@ type ExportPersister interface {
 // Exporter contains the application entry point for all operations regarding views upon your zettelkasten.
 // Exporter satisfies the zet.Exporter interface.
 type Exporter struct {
-	ViewPersister ExportPersister
-	Repo          zet.Repo
+	Persister ExportPersister
+	Repo      zet.Repo
 }
 
 func New(ip ExportPersister, r zet.Repo) Exporter {
 	return Exporter{
-		ViewPersister: ip,
-		Repo:          r,
+		Persister: ip,
+		Repo:      r,
 	}
 }
 
@@ -54,7 +54,7 @@ func (e Exporter) Export() error {
 	// Concrete Implementierung heißt CSVPersister.
 	infos := getInfos(zettel, index, references)
 
-	err = e.ViewPersister.PersistInfo(infos)
+	err = e.Persister.PersistInfo(infos)
 	if err != nil {
 		return err
 	}
@@ -135,10 +135,6 @@ func getUnindexedIds(pathDepths map[string]int, index zet.Index) map[string]int 
 		unindexedIds[id] = depth
 	}
 	return unindexedIds
-}
-
-func isIrrelevant(id string, depth int) bool {
-	return depth == 0 || id == ""
 }
 
 func convertToStringSlice(unindexedIds map[string]int) []string {

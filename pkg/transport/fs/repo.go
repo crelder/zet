@@ -181,19 +181,19 @@ func (r Repo) GetBibkeys() ([]string, error) {
 
 // CreateInfo persists some statistics in form of a txt file about a topic like e.g. keywords, context or literature.
 func (r Repo) PersistInfo(m map[string][]string) error {
-	err := os.RemoveAll(path.Join(r.path, "INFO"))
+	err := os.RemoveAll(path.Join(r.path, "EXPORT"))
 	if err != nil {
 		return fmt.Errorf("repo: %v", err)
 	}
 
-	err = existsOrMake(r.path + "/INFO")
+	err = existsOrMake(r.path + "/EXPORT")
 	if err != nil {
 		return err
 	}
 
 	for topic, data := range m {
 		d := strings.Join(data, "\n")
-		err := os.WriteFile(r.path+"/INFO/"+topic+".csv", []byte(d), fs.ModePerm)
+		err := os.WriteFile(r.path+"/EXPORT/"+topic+".csv", []byte(d), fs.ModePerm)
 		if err != nil {
 			return err
 		}

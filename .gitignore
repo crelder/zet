@@ -1,15 +1,12 @@
 .DS_Store
 .idea
+main
+/pkg/imports/testdata/zettelkasten/zettel/211005p - Post-capitalism.txt
 /pkg/imports/testdata/zettelkasten/zettel/210218g - Guter Programmierer, Business, Probleme, Bezahlung - Dave Cheney.txt
 /pkg/imports/testdata/zettelkasten/zettel/211005a - Probleme - Dave Cheney.txt
 /pkg/imports/testdata/zettelkasten/zettel/211005g - Prozess, Glück, Enttäuschung, Hoffnung - Paul Watzlawick, Anleitung zum Unglücklich sein.txt
 /pkg/initialize/tmp_test_init_example/
 /pkg/initialize/tmp_test/
 /pkg/index/testdata/zettelkasten/INDEX/
-/pkg/index/testdata/zettelkasten/INFO/
-/pkg/view/testdata/zettelkasten2/INDEX/
-/pkg/view/testdata/zettelkasten2/INFO/
-/pkg/view/testdata/zettelkasten3/INDEX/
-/pkg/view/testdata/zettelkasten3/INFO/
-main
-/pkg/imports/testdata/zettelkasten/zettel/211005p - Post-capitalism.txt
+/pkg/export/testdata/zettelkasten2/EXPORT/
+/pkg/export/testdata/zettelkasten3/EXPORT/
