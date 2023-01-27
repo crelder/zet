@@ -52,10 +52,7 @@ func (e Exporter) Export() error {
 
 	// Call method that persists all these info e.InfoPersister.PersistIndex(name, []string).
 	// Concrete Implementierung heißt CSVPersister.
-	infos, errs := getInfos(zettel, index, references)
-	if errs != nil {
-		fmt.Println(errs)
-	}
+	infos := getInfos(zettel, index, references)
 
 	err = e.Persister.PersistInfo(infos)
 	if err != nil {
@@ -75,7 +72,7 @@ func getZettel(id string, zettel []zet.Zettel) (zet.Zettel, error) {
 	return zet.Zettel{}, fmt.Errorf("export: zettel with id %v not found", id)
 }
 
-func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) (map[string][]string, []error) {
+func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) map[string][]string {
 	infos := make(map[string][]string)
 
 	ids := addFrequency(getIds(zettel))
@@ -98,7 +95,7 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) (map[strin
 		infos["references"] = references
 	}
 
-	pathDepths, errs := getPathDepths(zettel)
+	pathDepths := getPathDepths(zettel)
 	if pathDepths != nil {
 		infos["pathDepths"] = convertToStringSlice(pathDepths)
 	}
@@ -110,24 +107,21 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) (map[strin
 
 	infos["bibkeys"] = addFrequency(bibkeys)
 
-	return infos, errs
+	return infos
 }
 
-func getPathDepths(zettels []zet.Zettel) (map[string]int, []error) {
+func getPathDepths(zettels []zet.Zettel) map[string]int {
 	pathDepths := make(map[string]int)
 	var maxDepth int
-	var errs []error
 	for _, zettel := range zettels {
-		rootId, depth, err := getRootAndPathDepth(zettel, zettels)
-		if err != nil {
-			errs = append(errs, err)
-		}
+		rootId, depth := getRootAndPathDepth(zettel, zettels)
+
 		if depth > maxDepth {
 			pathDepths[rootId] = depth
 			continue
 		}
 	}
-	return pathDepths, errs
+	return pathDepths
 }
 
 // getUnindexedIds returns a list of ids, that are not in the index.
@@ -156,7 +150,7 @@ func convertToStringSlice(unindexedIds map[string]int) []string {
 	return results
 }
 
-func getRootAndPathDepth(zettel zet.Zettel, zettels []zet.Zettel) (string, int, error) {
+func getRootAndPathDepth(zettel zet.Zettel, zettels []zet.Zettel) (string, int) {
 	var (
 		z         = zettel
 		travelled = make(map[string]bool)
@@ -166,17 +160,17 @@ func getRootAndPathDepth(zettel zet.Zettel, zettels []zet.Zettel) (string, int, 
 	)
 
 	for {
-		if _, ok = travelled[z.Id]; ok {
-			return "", 0, fmt.Errorf("tracking the root of zettel %v contains a loop", zettel.Id)
+		// Either a loop or no Predecessor
+		if _, ok = travelled[z.Id]; ok || z.Predecessor == "" {
+			return z.Id, count
 		}
-		if z.Predecessor == "" { // No Predecessor
-			return z.Id, count, nil
-		}
+
 		travelled[z.Id] = true                     // Workaround if there are circles in the graph
 		z, err = getZettel(z.Predecessor, zettels) // TODO: Handle error!
 		if err != nil {
-			return z.Id, count, nil
+			return z.Id, count
 		}
+
 		count += 1
 	}
 }
