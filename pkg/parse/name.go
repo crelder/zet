@@ -207,7 +207,7 @@ func getHeader(s string) header {
 			continue
 		}
 		if i == 1 {
-			header.date = string(lines[1])
+			header.date = strings.TrimSpace(string(lines[1]))
 			continue
 		}
 		if i == 2 {
@@ -232,9 +232,10 @@ func parseDate(header string) (time.Time, error) {
 	layouts := []string{
 		"2.1.06",
 		"2.1.2006",
+		"02.01.06",
 		"060102",
-		"January 2, 2006",
 		"01/02/06",
+		"January 2, 2006",
 	}
 	for _, l := range layouts {
 		t, err := time.Parse(l, header)

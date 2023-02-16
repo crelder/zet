@@ -22,3 +22,4 @@ jobs:
                     go clean -testcache
                     go test -v ./...
                 shell: bash
+# Add golint and go vet to the pipeline

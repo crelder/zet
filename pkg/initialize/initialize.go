@@ -78,6 +78,7 @@ func (i Initiator) InitExample() error {
 	if err4 != nil {
 		return err4
 	}
+	out.Close()
 
 	err5 := extract(initPath+"/example.zip", i.path)
 	if err5 != nil {
