@@ -17,7 +17,7 @@ import (
 
 // PersistInfo persists some information like a list of keywords used in your zettelkasten and the number of occurrences.
 type ExportPersister interface {
-	PersistInfo(m map[string][]string) error
+	PersistInfo(m map[string][]byte) error
 }
 
 // Exporter contains the application entry point for all operations regarding views upon your zettelkasten.
@@ -75,40 +75,44 @@ func getZettel(id string, zettel []zet.Zettel) (zet.Zettel, error) {
 	return zet.Zettel{}, fmt.Errorf("export: zettel with id %v not found", id)
 }
 
-func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) (map[string][]string, []error) {
-	infos := make(map[string][]string)
+func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) (map[string][]byte, []error) {
+	infos := make(map[string][]byte)
 
 	ids := addFrequency(getIds(zettel))
 	if len(ids) > 0 {
-		infos["ids"] = ids
+		infos["ids.csv"] = ids
 	}
 
 	keywords := addFrequency(getKeywords(zettel))
 	if len(keywords) > 0 {
-		infos["keywords"] = keywords
+		infos["keywords.csv"] = keywords
 	}
 
 	context := addFrequency(getContext(zettel))
 	if len(context) > 0 {
-		infos["context"] = context
+		infos["context.csv"] = context
 	}
 
 	references := addFrequency(getReferences(zettel))
 	if len(references) > 0 {
-		infos["references"] = references
+		infos["references.csv"] = references
 	}
 
 	pathDepths, errs := getPathDepths(zettel)
 	if pathDepths != nil {
-		infos["pathDepths"] = convertToStringSlice(pathDepths)
+		infos["pathDepths.csv"] = convertToByteSlice(pathDepths)
 	}
 
-	unindexed := convertToStringSlice(getUnindexedIds(pathDepths, index))
+	unindexed := convertToByteSlice(getUnindexedIds(pathDepths, index))
 	if unindexed != nil {
-		infos["unindexed"] = unindexed
+		infos["unindexed.csv"] = unindexed
 	}
 
-	infos["bibkeys"] = addFrequency(bibkeys)
+	infos["bibkeys.csv"] = addFrequency(bibkeys)
+
+	// ein großes Json mit zettel, index, references
+
+	// ein gephi
 
 	return infos, errs
 }
@@ -144,10 +148,10 @@ func getUnindexedIds(pathDepths map[string]int, index zet.Index) map[string]int 
 	return unindexedIds
 }
 
-func convertToStringSlice(unindexedIds map[string]int) []string {
-	var results []string
+func convertToByteSlice(unindexedIds map[string]int) []byte {
+	var results []byte
 	for id, n := range unindexedIds {
-		results = append(results, fmt.Sprintf("%v;%v", id, n))
+		results = append(results, []byte(fmt.Sprintf("%v;%v", id, n))...)
 	}
 
 	sort.Slice(results, func(i, j int) bool {
@@ -230,7 +234,7 @@ func isInIndex(id string, index zet.Index) bool {
 	return false
 }
 
-func addFrequency(s []string) []string {
+func addFrequency(s []string) []byte {
 	m := make(map[string]int)
 
 	for _, elem := range s {
@@ -246,5 +250,5 @@ func addFrequency(s []string) []string {
 		return result[i] < result[j]
 	})
 
-	return result
+	return []byte(strings.Join(result, "\n"))
 }
