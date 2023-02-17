@@ -99,6 +99,7 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) (map[strin
 	}
 
 	pathDepths, errs := getPathDepths(zettel)
+	fmt.Println(pathDepths)
 	if pathDepths != nil {
 		infos["pathDepths.csv"] = convertToByteSlice(pathDepths)
 	}
@@ -150,6 +151,9 @@ func getUnindexedIds(pathDepths map[string]int, index zet.Index) map[string]int 
 
 func convertToByteSlice(unindexedIds map[string]int) []byte {
 	var results []byte
+	for s, i := range unindexedIds {
+		fmt.Printf("s:%v \ti:%v\n", s, i)
+	}
 	for id, n := range unindexedIds {
 		results = append(results, []byte(fmt.Sprintf("%v;%v", id, n))...)
 	}

@@ -192,6 +192,7 @@ func (r Repo) PersistInfo(m map[string][]byte) error {
 		return err
 	}
 
+	fmt.Println(m)
 	for filename, data := range m {
 		err := os.WriteFile(path.Join(r.path, "export", filename), data, fs.ModePerm)
 		if err != nil {
