@@ -17,7 +17,7 @@ import (
 
 // PersistInfo persists some information like a list of keywords used in your zettelkasten and the number of occurrences.
 type ExportPersister interface {
-	PersistInfo(m map[string][]byte) error
+	PersistInfo(m map[string][]string) error
 }
 
 // Exporter contains the application entry point for all operations regarding views upon your zettelkasten.
@@ -75,8 +75,8 @@ func getZettel(id string, zettel []zet.Zettel) (zet.Zettel, error) {
 	return zet.Zettel{}, fmt.Errorf("export: zettel with id %v not found", id)
 }
 
-func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) (map[string][]byte, []error) {
-	infos := make(map[string][]byte)
+func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) (map[string][]string, []error) {
+	infos := make(map[string][]string)
 
 	ids := addFrequency(getIds(zettel))
 	if len(ids) > 0 {
@@ -99,12 +99,11 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) (map[strin
 	}
 
 	pathDepths, errs := getPathDepths(zettel)
-	fmt.Println(pathDepths)
 	if pathDepths != nil {
-		infos["pathDepths.csv"] = convertToByteSlice(pathDepths)
+		infos["pathDepths.csv"] = convertToStringSlice(pathDepths)
 	}
 
-	unindexed := convertToByteSlice(getUnindexedIds(pathDepths, index))
+	unindexed := convertToStringSlice(getUnindexedIds(pathDepths, index))
 	if unindexed != nil {
 		infos["unindexed.csv"] = unindexed
 	}
@@ -149,13 +148,10 @@ func getUnindexedIds(pathDepths map[string]int, index zet.Index) map[string]int 
 	return unindexedIds
 }
 
-func convertToByteSlice(unindexedIds map[string]int) []byte {
-	var results []byte
-	for s, i := range unindexedIds {
-		fmt.Printf("s:%v \ti:%v\n", s, i)
-	}
+func convertToStringSlice(unindexedIds map[string]int) []string {
+	var results []string
 	for id, n := range unindexedIds {
-		results = append(results, []byte(fmt.Sprintf("%v;%v", id, n))...)
+		results = append(results, fmt.Sprintf("%v;%v", id, n))
 	}
 
 	sort.Slice(results, func(i, j int) bool {
@@ -238,7 +234,7 @@ func isInIndex(id string, index zet.Index) bool {
 	return false
 }
 
-func addFrequency(s []string) []byte {
+func addFrequency(s []string) []string {
 	m := make(map[string]int)
 
 	for _, elem := range s {
@@ -254,5 +250,5 @@ func addFrequency(s []string) []byte {
 		return result[i] < result[j]
 	})
 
-	return []byte(strings.Join(result, "\n"))
+	return result
 }

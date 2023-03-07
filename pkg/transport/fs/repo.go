@@ -180,8 +180,7 @@ func (r Repo) GetBibkeys() ([]string, error) {
 }
 
 // CreateInfo persists some statistics in form of a txt file about a topic like e.g. keywords, context or literature.
-// Modify to have: map[filename][]byte since it is used in the os.WriteFile interface
-func (r Repo) PersistInfo(m map[string][]byte) error {
+func (r Repo) PersistInfo(m map[string][]string) error {
 	err := os.RemoveAll(path.Join(r.path, "EXPORT"))
 	if err != nil {
 		return fmt.Errorf("repo: %v", err)
@@ -192,9 +191,9 @@ func (r Repo) PersistInfo(m map[string][]byte) error {
 		return err
 	}
 
-	fmt.Println(m)
 	for filename, data := range m {
-		err := os.WriteFile(path.Join(r.path, "export", filename), data, fs.ModePerm)
+		d := strings.Join(data, "\n")
+		err := os.WriteFile(r.path+"/EXPORT/"+filename, []byte(d), fs.ModePerm)
 		if err != nil {
 			return err
 		}
