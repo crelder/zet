@@ -1,6 +1,7 @@
 package export
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/crelder/zet"
 	"sort"
@@ -110,11 +111,30 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) (map[strin
 
 	infos["bibkeys.csv"] = addFrequency(bibkeys)
 
+	j := getJson(zettel, index, bibkeys)
+	if j != nil {
+		infos["zettelkasten.json"] = j
+	}
+
 	// ein großes Json mit zettel, index, references
 
 	// ein gephi
 
 	return infos, errs
+}
+
+func getJson(zettel []zet.Zettel, index zet.Index, bibkeys []string) []string {
+	zk := struct {
+		Zettel  []zet.Zettel `json:"zettel"`
+		Index   zet.Index    `json:"index"`
+		Bibkeys []string     `json:"bibkeys"`
+	}{
+		zettel,
+		index,
+		bibkeys,
+	}
+	zkJson, _ := json.MarshalIndent(zk, "", "\t")
+	return strings.Split(fmt.Sprintf("%s", zkJson), "\n")
 }
 
 func getPathDepths(zettels []zet.Zettel) (map[string]int, []error) {
