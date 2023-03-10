@@ -128,6 +128,7 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) (map[strin
 type Gexf struct {
 	XMLName xml.Name `xml:"gexf"`
 	Xmlns   string   `xml:"xmlns,attr"`
+	Version string   `xml:"version,attr"`
 	Graph   Graph    `xml:"graph"`
 }
 
@@ -170,17 +171,16 @@ func getGephi(zettel []zet.Zettel) ([]string, error) {
 
 	var n = []Node{}
 	var e = []Edge{}
-	var i = 1
+	var i = 0
 	for _, z := range zettel {
 		n = append(n, Node{
 			Id:    z.Id,
 			Label: strings.Join(z.Keywords, ", "),
 		})
-		i++
 
 		for _, f := range z.Folgezettel {
 			e = append(e, Edge{
-				Id:     i,
+				Id:     i + 1,
 				Source: z.Id,
 				Target: f,
 			})
@@ -206,16 +206,17 @@ func getGephi(zettel []zet.Zettel) ([]string, error) {
 		Edges:           edges,
 	}
 	var gexf = Gexf{
-		Xmlns: "xmlns=\"http://gexf.net/1.2\" version=\"1.2\"",
-		Graph: graph,
+		Xmlns:   `http://gexf.net/1.2`,
+		Version: "1.2",
+		Graph:   graph,
 	}
 
-	xmlString, err := xml.Marshal(gexf)
+	xmlString, err := xml.MarshalIndent(gexf, "", "\t")
 	if err != nil {
 		return nil, err
 	}
 
-	result = append(result, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+	result = append(result, `<?xml version="1.0" encoding="UTF-8"?>`)
 	split := strings.Split(string(xmlString), "\n")
 	for _, s := range split {
 		result = append(result, s)

@@ -227,17 +227,15 @@ func getExpectedJson() zettelkasten {
 func getExpectedGephi() Gexf {
 	a := `<?xml version="1.0" encoding="UTF-8"?>
 <gexf xmlns="http://gexf.net/1.2" version="1.2">
-  <meta lastmodifieddate="2010-03-03+23:44">
-    <creator>zet</creator>
-    <description>zettelkasten</description>
-  </meta>
   <graph defaultedgetype="directed" idtype="string" type="static">
-    <nodes count="2">
-      <node id="170915a" label="Neuronales Netz, Features und Beispiele, Nicht-numersiche Daten " />
-      <node id="171109a" label="Pflanzen, Signal, Sensibilität " />
+    <nodes count="3">
+      <node id="170224a" label="Polymorphism, Interface" />
+      <node id="180522a" label="Testing, Complexity" />
+      <node id="190119e" label="Complexity" />
     </nodes>
-    <edges count="1">
-      <edge id="1" source="171109a" target="170915a" />
+    <edges count="2">
+      <edge id="1" source="170224a" target="180522a" />
+      <edge id="2" source="190119e" target="170224a" />
     </edges>
   </graph>
 </gexf>`
