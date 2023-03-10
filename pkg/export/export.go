@@ -119,7 +119,7 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) (map[strin
 
 	g, _ := getGephi(zettel)
 	if g != nil {
-		infos["zettelkasten.gephi"] = g
+		infos["zettelkasten.gexf"] = g
 	}
 
 	return infos, errs

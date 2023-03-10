@@ -3,6 +3,7 @@
 ## Bug fixes and Refactorings
 
 1. Better error handling for getZettel(id, zettels) in index.go
+2. Make sure that export test also checks for zettelkasten.json and zettelkasten.gephi that files exit
 3. Check if removing of path works
 4. Remove deletion in view_test.go, since the repo will do it automatically
 5. Folder `VIEWS/unlinked` shows sometimes less than 10 zettel. It should be always 10 (if there are 10).

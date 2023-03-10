@@ -35,15 +35,13 @@ func TestCreateExport(t *testing.T) {
 
 	// Assert
 	want := map[string]string{
-		"ids.csv":           "170224a;1\n180522a;1\n190119e;1", // TODO: Remove Häufigkeit, since an error will be listed in errors.csv
-		"keywords.csv":      "Complexity;2\nInterface;1\nPolymorphism;1\nTesting;1",
-		"context.csv":       "GopherCon;2",
-		"references.csv":    "clausen2021;1",
-		"bibkeys.csv":       "kernighan1999;1\nsedgewick2011;1",
-		"pathDepths.csv":    "190119e;2",
-		"unindexed.csv":     "190119e;2", // TODO: Also test that something which is a chain but in the index, doesn't show up here.
-		"zettelkasten.json": "true",      // The content is more complex and will be asserted separatly
-		"zettelkasten.gexf": "true",      // The content is more complex and will be asserted separatly
+		"ids.csv":        "170224a;1\n180522a;1\n190119e;1", // TODO: Remove Häufigkeit, since an error will be listed in errors.csv
+		"keywords.csv":   "Complexity;2\nInterface;1\nPolymorphism;1\nTesting;1",
+		"context.csv":    "GopherCon;2",
+		"references.csv": "clausen2021;1",
+		"bibkeys.csv":    "kernighan1999;1\nsedgewick2011;1",
+		"pathDepths.csv": "190119e;2",
+		"unindexed.csv":  "190119e;2", // TODO: Also test that something which is a chain but in the index, doesn't show up here.
 		// TODO: Check if a circular structur is defended against.
 	}
 
@@ -55,13 +53,12 @@ func TestCreateExport(t *testing.T) {
 	// Create a map[filename]content from the files created
 	got := make(map[string]string)
 	for _, dirEntry := range dir {
+		if dirEntry.Name() == "zettelkasten.json" || dirEntry.Name() == "zettelkasten.gexf" { // This will be checked in another part of this test.
+			continue
+		}
 		file, err := os.ReadFile(path.Join(infoPath, dirEntry.Name()))
 		if err != nil {
 			t.Errorf("error reading file: %v", err)
-		}
-		if dirEntry.Name() == "zettelkasten.json" || dirEntry.Name() == "zettelkasten.gexf" { // This will be checked in another part of this test.
-			got[dirEntry.Name()] = "true" // The content is more complex and will be asserted separatly
-			continue
 		}
 		got[dirEntry.Name()] = string(file)
 	}
@@ -225,46 +222,6 @@ func getExpectedJson() zettelkasten {
 	var out = zettelkasten{}
 	_ = json.Unmarshal([]byte(expected), &out)
 	return out
-}
-
-type Gexf struct {
-	XMLName xml.Name `xml:"gexf"`
-	Xmlns   string   `xml:"xmlns,attr"`
-	Graph   Graph    `xml:"graph"`
-}
-
-type Graph struct {
-	XMLName         xml.Name `xml:"graph"`
-	DefaultEdgeType string   `xml:"defaultedgetype,attr"`
-	IdType          string   `xml:"idtype,attr"`
-	Type            string   `xml:"type,attr"`
-	Nodes           Nodes    `xml:"nodes"`
-	Edges           Edges    `xml:"edges"`
-}
-
-type Nodes struct {
-	XMLName xml.Name `xml:"nodes"`
-	Count   int      `xml:"count,attr"`
-	Nodes   []Node   `xml:"node"`
-}
-
-type Node struct {
-	XMLName xml.Name `xml:"node"`
-	Id      string   `xml:"id,attr"`
-	Label   string   `xml:"label,attr"`
-}
-
-type Edges struct {
-	XMLName xml.Name `xml:"edges"`
-	Count   int      `xml:"count,attr"`
-	Edges   []Edge   `xml:"edge"`
-}
-
-type Edge struct {
-	XMLName xml.Name `xml:"edge"`
-	Id      int      `xml:"id,attr"`
-	Source  string   `xml:"source,attr"`
-	Target  string   `xml:"target,attr"`
 }
 
 func getExpectedGephi() Gexf {
