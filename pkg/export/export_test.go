@@ -1,6 +1,8 @@
 package export
 
 import (
+	"encoding/json"
+	"github.com/crelder/zet"
 	"github.com/crelder/zet/pkg/parse"
 	"github.com/crelder/zet/pkg/transport/fs"
 	"github.com/google/go-cmp/cmp"
@@ -8,6 +10,12 @@ import (
 	"path"
 	"testing"
 )
+
+type zettelkasten struct {
+	Zettel  []zet.Zettel
+	Index   []zet.Index
+	Bibkeys []string
+}
 
 func TestCreateExport(t *testing.T) {
 	// Arrange
@@ -47,9 +55,12 @@ func TestCreateExport(t *testing.T) {
 		t.Errorf("error reading dir %v: %v", infoPath, err)
 	}
 
-	// map[filename]content
+	// Create a map[filename]content from the files created
 	got := make(map[string]string)
 	for _, dirEntry := range dir {
+		if dirEntry.Name() == "zettelkasten.json" { // This will be checked in another part of this test.
+			continue
+		}
 		file, err := os.ReadFile(path.Join(infoPath, dirEntry.Name()))
 		if err != nil {
 			t.Errorf("error reading file: %v", err)
@@ -59,6 +70,25 @@ func TestCreateExport(t *testing.T) {
 
 	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf(diff)
+	}
+
+	for _, dirEntry := range dir {
+		if dirEntry.Name() != "zettelkasten.json" {
+			continue
+		}
+
+		expected := getExpectedJson()
+		var actual = zettelkasten{}
+
+		file, err := os.ReadFile(path.Join(infoPath, dirEntry.Name()))
+		if err != nil {
+			t.Errorf("error reading file: %v", err)
+		}
+		_ = json.Unmarshal([]byte(file), &actual)
+		if diff := cmp.Diff(actual, expected); diff != "" {
+			t.Errorf(diff)
+		}
+
 	}
 }
 
@@ -105,4 +135,71 @@ func clearPath(path string) {
 	if err != nil {
 		println("Error occurred: %v", err)
 	}
+}
+
+func getExpectedJson() zettelkasten {
+	var expected = `{
+	"zettel": [
+		{
+			"Id": "170224a",
+			"Keywords": [
+				"Polymorphism",
+				"Interface"
+			],
+			"Folgezettel": [
+				"180522a"
+			],
+			"Predecessor": "190119e",
+			"References": null,
+			"Context": [
+				"GopherCon"
+			],
+			"Name": "170224a - Polymorphism, Interface - GopherCon - 190119e.png"
+		},
+		{
+			"Id": "180522a",
+			"Keywords": [
+				"Testing",
+				"Complexity"
+			],
+			"Folgezettel": null,
+			"Predecessor": "170224a",
+			"References": [
+				{
+					"Bibkey": "clausen2021",
+					"Location": "87"
+				}
+			],
+			"Context": null,
+			"Name": "180522a - Testing, Complexity - clausen2021 87 - 170224a.txt"
+		},
+		{
+			"Id": "190119e",
+			"Keywords": [
+				"Complexity"
+			],
+			"Folgezettel": [
+				"170224a"
+			],
+			"Predecessor": "",
+			"References": null,
+			"Context": [
+				"GopherCon"
+			],
+			"Name": "190119e - Complexity - GopherCon.txt"
+		}
+	],
+	"index": {
+		"Complexity": [
+			"220122a"
+		]
+	},
+	"bibkeys": [
+		"kernighan1999",
+		"sedgewick2011"
+	]
+}`
+	var out = zettelkasten{}
+	_ = json.Unmarshal([]byte(expected), &out)
+	return out
 }
