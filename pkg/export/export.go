@@ -2,6 +2,7 @@ package export
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"github.com/crelder/zet"
 	"sort"
@@ -116,11 +117,111 @@ func getInfos(zettel []zet.Zettel, index zet.Index, bibkeys []string) (map[strin
 		infos["zettelkasten.json"] = j
 	}
 
-	// ein großes Json mit zettel, index, references
-
-	// ein gephi
+	g, _ := getGephi(zettel)
+	if g != nil {
+		infos["zettelkasten.gephi"] = g
+	}
 
 	return infos, errs
+}
+
+type Gexf struct {
+	XMLName xml.Name `xml:"gexf"`
+	Xmlns   string   `xml:"xmlns,attr"`
+	Graph   Graph    `xml:"graph"`
+}
+
+type Graph struct {
+	XMLName         xml.Name `xml:"graph"`
+	DefaultEdgeType string   `xml:"defaultedgetype,attr"`
+	IdType          string   `xml:"idtype,attr"`
+	Type            string   `xml:"type,attr"`
+	Nodes           Nodes    `xml:"nodes"`
+	Edges           Edges    `xml:"edges"`
+}
+
+type Nodes struct {
+	XMLName xml.Name `xml:"nodes"`
+	Count   int      `xml:"count,attr"`
+	Nodes   []Node   `xml:"node"`
+}
+
+type Node struct {
+	XMLName xml.Name `xml:"node"`
+	Id      string   `xml:"id,attr"`
+	Label   string   `xml:"label,attr"`
+}
+
+type Edges struct {
+	XMLName xml.Name `xml:"edges"`
+	Count   int      `xml:"count,attr"`
+	Edges   []Edge   `xml:"edge"`
+}
+
+type Edge struct {
+	XMLName xml.Name `xml:"edge"`
+	Id      int      `xml:"id,attr"`
+	Source  string   `xml:"source,attr"`
+	Target  string   `xml:"target,attr"`
+}
+
+func getGephi(zettel []zet.Zettel) ([]string, error) {
+	var result = []string{}
+
+	var n = []Node{}
+	var e = []Edge{}
+	var i = 1
+	for _, z := range zettel {
+		n = append(n, Node{
+			Id:    z.Id,
+			Label: strings.Join(z.Keywords, ", "),
+		})
+		i++
+
+		for _, f := range z.Folgezettel {
+			e = append(e, Edge{
+				Id:     i,
+				Source: z.Id,
+				Target: f,
+			})
+			i++
+		}
+	}
+
+	var edges = Edges{
+		Count: i,
+		Edges: e,
+	}
+
+	var nodes = Nodes{
+		Count: len(zettel),
+		Nodes: n,
+	}
+
+	var graph = Graph{
+		DefaultEdgeType: "directed",
+		IdType:          "string",
+		Type:            "static",
+		Nodes:           nodes,
+		Edges:           edges,
+	}
+	var gexf = Gexf{
+		Xmlns: "xmlns=\"http://gexf.net/1.2\" version=\"1.2\"",
+		Graph: graph,
+	}
+
+	xmlString, err := xml.Marshal(gexf)
+	if err != nil {
+		return nil, err
+	}
+
+	result = append(result, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+	split := strings.Split(string(xmlString), "\n")
+	for _, s := range split {
+		result = append(result, s)
+	}
+
+	return result, nil
 }
 
 func getJson(zettel []zet.Zettel, index zet.Index, bibkeys []string) []string {
