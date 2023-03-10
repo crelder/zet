@@ -2,6 +2,7 @@ package export
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"github.com/crelder/zet"
 	"github.com/crelder/zet/pkg/parse"
 	"github.com/crelder/zet/pkg/transport/fs"
@@ -10,12 +11,6 @@ import (
 	"path"
 	"testing"
 )
-
-type zettelkasten struct {
-	Zettel  []zet.Zettel
-	Index   []zet.Index
-	Bibkeys []string
-}
 
 func TestCreateExport(t *testing.T) {
 	// Arrange
@@ -40,13 +35,15 @@ func TestCreateExport(t *testing.T) {
 
 	// Assert
 	want := map[string]string{
-		"ids.csv":        "170224a;1\n180522a;1\n190119e;1", // TODO: Remove Häufigkeit, since an error will be listed in errors.csv
-		"keywords.csv":   "Complexity;2\nInterface;1\nPolymorphism;1\nTesting;1",
-		"context.csv":    "GopherCon;2",
-		"references.csv": "clausen2021;1",
-		"bibkeys.csv":    "kernighan1999;1\nsedgewick2011;1",
-		"pathDepths.csv": "190119e;2",
-		"unindexed.csv":  "190119e;2", // TODO: Also test that something which is a chain but in the index, doesn't show up here.
+		"ids.csv":           "170224a;1\n180522a;1\n190119e;1", // TODO: Remove Häufigkeit, since an error will be listed in errors.csv
+		"keywords.csv":      "Complexity;2\nInterface;1\nPolymorphism;1\nTesting;1",
+		"context.csv":       "GopherCon;2",
+		"references.csv":    "clausen2021;1",
+		"bibkeys.csv":       "kernighan1999;1\nsedgewick2011;1",
+		"pathDepths.csv":    "190119e;2",
+		"unindexed.csv":     "190119e;2", // TODO: Also test that something which is a chain but in the index, doesn't show up here.
+		"zettelkasten.json": "true",      // The content is more complex and will be asserted separatly
+		"zettelkasten.gexf": "true",      // The content is more complex and will be asserted separatly
 		// TODO: Check if a circular structur is defended against.
 	}
 
@@ -58,12 +55,13 @@ func TestCreateExport(t *testing.T) {
 	// Create a map[filename]content from the files created
 	got := make(map[string]string)
 	for _, dirEntry := range dir {
-		if dirEntry.Name() == "zettelkasten.json" { // This will be checked in another part of this test.
-			continue
-		}
 		file, err := os.ReadFile(path.Join(infoPath, dirEntry.Name()))
 		if err != nil {
 			t.Errorf("error reading file: %v", err)
+		}
+		if dirEntry.Name() == "zettelkasten.json" || dirEntry.Name() == "zettelkasten.gexf" { // This will be checked in another part of this test.
+			got[dirEntry.Name()] = "true" // The content is more complex and will be asserted separatly
+			continue
 		}
 		got[dirEntry.Name()] = string(file)
 	}
@@ -89,6 +87,25 @@ func TestCreateExport(t *testing.T) {
 			t.Errorf(diff)
 		}
 
+	}
+
+	for _, dirEntry := range dir {
+		if dirEntry.Name() != "zettelkasten.gexf" {
+			continue
+		}
+
+		expected := getExpectedGephi()
+		var actual = Gexf{}
+
+		file, err := os.ReadFile(path.Join(infoPath, dirEntry.Name()))
+		if err != nil {
+			t.Errorf("error reading file: %v", err)
+		}
+
+		_ = xml.Unmarshal([]byte(file), &actual)
+		if diff := cmp.Diff(actual, expected); diff != "" {
+			t.Errorf(diff)
+		}
 	}
 }
 
@@ -135,6 +152,12 @@ func clearPath(path string) {
 	if err != nil {
 		println("Error occurred: %v", err)
 	}
+}
+
+type zettelkasten struct {
+	Zettel  []zet.Zettel
+	Index   []zet.Index
+	Bibkeys []string
 }
 
 func getExpectedJson() zettelkasten {
@@ -204,21 +227,64 @@ func getExpectedJson() zettelkasten {
 	return out
 }
 
-func getExpectedGephi() string {
-	a := `<?xml version="1.0" encoding="UTF-8"?> 
-<gexf xmlns:viz="http:///www.gexf.net/1.1draft/viz" version="1.1" xmlns="http://www.gexf.net/1.1draft"> 
-<meta lastmodifieddate="2010-03-03+23:44"> 
-<creator>Gephi 0.7</creator> 
-</meta> 
-<graph defaultedgetype="directed" idtype="string" type="static"> 
-<nodes count="2">
-<node id="170915a" label="Neuronales Netz, Features und Beispiele, Nicht-numersiche Daten "/>
-<node id="171109a" label="Pflanzen, Signal, Sensibilität "/>
-</nodes>
-<edges count="1">
-<edge id="1" source="171109a" target="170915a"/>
-</edges>
-</graph>
+type Gexf struct {
+	XMLName xml.Name `xml:"gexf"`
+	Xmlns   string   `xml:"xmlns,attr"`
+	Graph   Graph    `xml:"graph"`
+}
+
+type Graph struct {
+	XMLName         xml.Name `xml:"graph"`
+	DefaultEdgeType string   `xml:"defaultedgetype,attr"`
+	IdType          string   `xml:"idtype,attr"`
+	Type            string   `xml:"type,attr"`
+	Nodes           Nodes    `xml:"nodes"`
+	Edges           Edges    `xml:"edges"`
+}
+
+type Nodes struct {
+	XMLName xml.Name `xml:"nodes"`
+	Count   int      `xml:"count,attr"`
+	Nodes   []Node   `xml:"node"`
+}
+
+type Node struct {
+	XMLName xml.Name `xml:"node"`
+	Id      string   `xml:"id,attr"`
+	Label   string   `xml:"label,attr"`
+}
+
+type Edges struct {
+	XMLName xml.Name `xml:"edges"`
+	Count   int      `xml:"count,attr"`
+	Edges   []Edge   `xml:"edge"`
+}
+
+type Edge struct {
+	XMLName xml.Name `xml:"edge"`
+	Id      int      `xml:"id,attr"`
+	Source  string   `xml:"source,attr"`
+	Target  string   `xml:"target,attr"`
+}
+
+func getExpectedGephi() Gexf {
+	a := `<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://gexf.net/1.2" version="1.2">
+  <meta lastmodifieddate="2010-03-03+23:44">
+    <creator>zet</creator>
+    <description>zettelkasten</description>
+  </meta>
+  <graph defaultedgetype="directed" idtype="string" type="static">
+    <nodes count="2">
+      <node id="170915a" label="Neuronales Netz, Features und Beispiele, Nicht-numersiche Daten " />
+      <node id="171109a" label="Pflanzen, Signal, Sensibilität " />
+    </nodes>
+    <edges count="1">
+      <edge id="1" source="171109a" target="170915a" />
+    </edges>
+  </graph>
 </gexf>`
-	return ""
+	var expected Gexf
+	xml.Unmarshal([]byte(a), &expected)
+	return expected
 }
