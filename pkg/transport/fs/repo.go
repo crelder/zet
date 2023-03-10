@@ -258,16 +258,34 @@ func (r Repo) PersistIndex(links map[string]string) error {
 func (r Repo) GetContents(uri string) ([]string, error) {
 	var contents []string
 
-	filepaths, err := os.ReadDir(uri)
+	// Determine if it is a file or a directory
+	file, err := os.Open(uri)
 	if err != nil {
-		return nil, fmt.Errorf("repo GetContents: %v for uri: %v", err, uri)
+		return nil, fmt.Errorf("fs: couldn't open uri %q", uri)
 	}
-	filepaths = filterAllowed(filepaths)
 
-	for _, fp := range filepaths {
-		dat, _ := os.ReadFile(uri + "/" + fp.Name())
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return nil, fmt.Errorf("fs: couldn't get stats from file: %v", file.Name())
+	}
+
+	// IsDir is short for fileInfo.Mode().IsDir()
+	if fileInfo.IsDir() {
+		filepaths, err := os.ReadDir(uri)
+		if err != nil {
+			return nil, fmt.Errorf("repo GetContents: %v for uri: %v", err, uri)
+		}
+		filepaths = filterAllowed(filepaths)
+
+		for _, fp := range filepaths {
+			dat, _ := os.ReadFile(uri + "/" + fp.Name())
+			contents = append(contents, string(dat))
+		}
+	} else {
+		dat, _ := os.ReadFile(uri)
 		contents = append(contents, string(dat))
 	}
+
 	return contents, nil
 }
 
