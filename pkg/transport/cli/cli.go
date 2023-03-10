@@ -141,15 +141,15 @@ All bibkeys have a corresponding reference.`)
 const usage = `Usage: zet <command> [<args>]
       
 These are common zet commands:
+   export		   Generate folder 'EXPORT', which contains files with aggregated data 
+   index           Generate folder 'INDEX', which contains thematic access points into your zettelkasten
    init            Creates an empty zettelkasten
    init example    Downloads an example zettelkasten which is a tutorial
-   import <path>   Assign filename to textfiles in <path> and copy them to folder 'zettel'
    validate        Check your zettelkasten's consistency
-   views           Generate folder 'VIEWS', which contains access points into your zettelkasten
 
 All Zet commands operate read-only on the three elements of the zettelkasten:
-  * folder 'zettel'  (contains all zettel as a .txt, .png or .pdf file)
   * index.txt        (contains manually created starting points into your zettelkasten)
+  * folder 'zettel'  (contains all zettel as a .txt, .png or .pdf file)
   * references.bib   (contains information on sources - needed especially for scientific writing)`
 
 func printUsage() {
