@@ -143,7 +143,7 @@ const usage = `Usage: zet <command> [<args>]
 These are common zet commands:
    init            Creates an empty zettelkasten
    init example    Downloads an example zettelkasten which is a tutorial
-   import <path>   Assign filename to textfiles in <path> and copy them to folder 'zettel'
+   import <uri>    Assign filename to textfile(s) under uri (file or folder) and copy them to folder 'zettel
    validate        Check your zettelkasten's consistency
    views           Generate folder 'VIEWS', which contains access points into your zettelkasten
 
