@@ -142,6 +142,7 @@ const usage = `Usage: zet <command> [<args>]
       
 These are common zet commands:
    export		   Generate folder 'EXPORT', which contains files with aggregated data 
+   import <uri>    Assign filename to textfile(s) under uri (file or folder) and copy them to folder 'zettel
    index           Generate folder 'INDEX', which contains thematic access points into your zettelkasten
    init            Creates an empty zettelkasten
    init example    Downloads an example zettelkasten which is a tutorial

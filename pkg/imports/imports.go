@@ -24,7 +24,7 @@ func New(p zet.Parser, r Reader, repo zet.Repo) Importer {
 //
 // GetContents takes a path to a folder with textfiles and returns their contents.
 type Reader interface {
-	GetContents(path string) ([]string, error)
+	GetContents(uri string) ([]string, error)
 }
 
 // Import reads all the zettel contents from the parameter path.
