@@ -23,6 +23,7 @@
 5. After importing, ask with prompt: do you want to create new views? If yes, run `zet views`
 6. After creating views run validate ("there are inconsistencies. Run zet validate.")
 7. Check similarity of an imported zettel. Does one already similar exist? If date is the same (except letter) and text
+8. Validate, if Folgezettel have loops.
     content high similarity, error.
 
 ## Other
