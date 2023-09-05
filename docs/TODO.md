@@ -3,6 +3,7 @@
 ## Bug fixes and Refactorings
 
 1. Better error handling for getZettel(id, zettels) in index.go
+2. For index command: if zettel doesn't exist, no error is thrown!
 2. Make sure that export test also checks for zettelkasten.json and zettelkasten.gephi that files exit
 3. Check if removing of path works
 4. Remove deletion in view_test.go, since the repo will do it automatically
